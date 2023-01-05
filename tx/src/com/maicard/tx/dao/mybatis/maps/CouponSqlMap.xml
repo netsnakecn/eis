@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.tx.dao.mapper.CouponMapper">
+
+    <resultMap id="couponResult" type="com.maicard.tx.entity.Coupon">
+        <result property="id" column="id"/>
+        <result property="couponModelId" column="coupon_model_id"/>
+        <result property="transactionId" column="transaction_id"/>
+        <result property="uuid" column="uuid"/>
+        <result property="inviter" column="inviter"/>
+        <result property="couponCode" column="coupon_code"/>
+        <result property="extraCode" column="extra_code"/>
+        <result property="couponModelName" column="coupon_model_name"/>
+        <result property="couponModelDesc" column="coupon_model_desc"/>
+        <result property="content" column="content"/>
+        <result property="binContent" column="binContent"/>
+        <result property="giftMoney" column="gift_money"/>
+        <result property="giftMoneyType" column="gift_money_type"/>
+        <result property="priceMoney" column="price_money"/>
+        <result property="priceMoneyType" column="price_money_type"/>
+        <result property="couponType" column="coupon_type"/>
+        <result property="validTimeBegin" column="valid_time_begin"/>
+        <result property="validTimeEnd" column="valid_time_end"/>
+        <result property="couponSerialNumber" column="coupon_serial_number"/>
+        <result property="couponPassword" column="coupon_password"/>
+        <result property="fetchTime" column="fetch_time"/>
+        <result property="useTime" column="use_time"/>
+        <result property="imageUrl" column="image_url"/>
+        <result property="promotionData" column="promotion_data"/>
+        <result property="processor" column="processor"/>
+        <result property="memory" column="memory"/>
+        <result property="currentStatus" column="current_status"/>
+        <result property="version" column="version"/>
+        <result property="ownerId" column="owner_id"/>
+    </resultMap>
+
+    <sql id="selectColumns">
+        a.id,
+        a.coupon_model_id,
+        a.transaction_id,
+        a.uuid,
+        a.inviter,
+        b.coupon_code,
+        a.extra_code,
+        b.coupon_model_name,
+        b.coupon_model_desc,
+        a.content,
+        a.bin_content,
+        a.gift_money,
+        b.gift_money_type,
+        b.price_money,
+        b.price_money_type,
+        b.coupon_type,
+        b.valid_time_begin,
+        b.valid_time_end,
+        a.coupon_serial_number,
+        a.coupon_password,
+        a.fetch_time,
+        a.use_time,
+        b.image_url,
+        a.promotion_data,
+        b.processor,
+        a.memory,
+        a.current_status,
+        a.version,
+        a.owner_id
+    </sql>
+
+    <insert id="insert" parameterType="com.maicard.tx.entity.Coupon" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO coupon
+        (
+        <if test="id>0">id,</if>uuid, inviter, transaction_id, coupon_model_id, extra_code, content,
+        bin_content, gift_money, gift_money_type, price_money, price_money_type, coupon_type, memory,
+        coupon_serial_number,coupon_password,fetch_time,use_time,promotion_data,current_status,
+        version, owner_id)
+        VALUES
+        (
+        <if test="id>0">#{id},</if>#{uuid}, #{inviter}, #{transactionId}, #{couponModelId},#{extraCode},
+        #{content}, #{binContent}, #{giftMoney}, #{giftMoneyType}, #{priceMoney}, #{priceMoneyType}, #{couponType}, #{memory}, #{couponSerialNumber},
+        #{couponPassword}, #{fetchTime}, #{useTime}, #{promotionData},  #{currentStatus},
+        #{version}, #{ownerId})
+    </insert>
+
+    <update id="update" parameterType="com.maicard.tx.entity.Coupon">
+        UPDATE
+        coupon
+        SET
+        coupon_model_id = #{couponModelId},
+        extra_code = #{extraCode},
+        transaction_id = #{transactionId},
+        uuid = #{uuid},
+        inviter = #{inviter},
+        content = #{content},
+        bin_content = #{binContent},
+        gift_money = #{giftMoney},
+        memory = #{memory},
+        coupon_serial_number = #{couponSerialNumber},
+        coupon_password = #{couponPassword},
+        fetch_time = #{fetchTime},
+        use_time = #{useTime},
+        promotion_data = #{promotionData},
+        current_status = #{currentStatus},
+        version = #{version},
+        owner_id = #{ownerId}
+        WHERE
+        id = #{id}
+        <if test="lockStatus > 0">
+            AND current_status = #{lockStatus}
+        </if>
+    </update>
+
+    <delete id="delete" parameterType="long">
+        DELETE FROM
+        coupon
+        WHERE
+        id = #{id}
+    </delete>
+
+    <select id="select" parameterType="int" resultMap="couponResult">
+        SELECT
+        <include refid="selectColumns"/>
+        FROM
+        coupon as a left join coupon_model as b on a.coupon_model_id = b.coupon_model_id
+        WHERE
+        id = #{id}
+    </select>
+
+    <sql id="criteriaWhereClause">
+        <where>
+            a.owner_id = #{ownerId}
+            <if test="couponModelId > 0">
+                AND b.coupon_model_id = #{couponModelId}
+            </if>
+            <if test="couponCode != null and couponCode != ''">
+                AND b.coupon_code = #{couponCode}
+            </if>
+            <if test="transactionId != null">
+                AND a.transaction_id = #{transactionId}
+            </if>
+            <if test="extraCode != null">
+                AND a.extra_code = #{extraCode}
+            </if>
+            <if test="content != null">
+                AND a.content = #{content}
+            </if>
+            <if test="couponSerialNumber != null and couponSerialNumber != ''">
+                AND a.coupon_serial_number = #{couponSerialNumber}
+            </if>
+            <if test="couponPassword != null and couponPassword != ''">
+                AND a.coupon_password = #{couponPassword}
+            </if>
+            <if test="uuid > 0">
+                AND a.uuid = #{uuid}
+            </if>
+            <if test="inviters != null and inviters.length > 0">
+                AND a.inviter in
+                <foreach item="item" collection="inviters" open="("
+                         separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="fetchNewCoupon == true">
+                AND a.uuid = 0
+            </if>
+
+            <if test="currentStatus != null and currentStatus.length > 0">
+                AND a.current_status in
+                <foreach item="item" collection="currentStatus" open="("
+                         separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="id > 0">
+                AND `id` = #{id}
+            </if>
+        </where>
+    </sql>
+
+    <select id="list" parameterType="map" resultMap="couponResult">
+        SELECT
+        <include refid="selectColumns"/>
+        FROM
+        coupon as a left join coupon_model as b on a.coupon_model_id = b.coupon_model_id
+        <include refid="criteriaWhereClause"/>
+    </select>
+    <select id="count" parameterType="map"
+            resultType="int">
+        SELECT
+        COUNT(*)
+        FROM
+        coupon as a left join coupon_model as b on a.coupon_model_id = b.coupon_model_id
+        <include refid="criteriaWhereClause"/>
+    </select>
+
+</mapper>

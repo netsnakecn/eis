@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 15:01:42 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.security.dao.mapper.OperateLogMapper">
+
+	<resultMap id="OperateLogResult" type="com.maicard.security.entity.OperateLog">
+		<result property="id" column="id"/>
+	    <result property="objectType" column="object_type"/>
+		<result property="objectId" column="object_id"/>
+		<result property="uuid" column="uuid"/>
+		<result property="operateCode" column="operate_code"/>
+		<result property="operateResult" column="operate_result"/>
+		<result property="operateTime" column="operate_time"/>
+		<result property="value" column="value"/>
+		<result property="ip" column="ip"/>
+		<result property="serverId" column="server_id"/>
+		<result property="ownerId" column="owner_id"/>
+	</resultMap>
+
+	<insert id="insert" parameterType="com.maicard.security.entity.OperateLog" useGeneratedKeys="true"  keyProperty="id">
+		INSERT IGNORE INTO operate_log
+			(<if test="id > 0">id,</if> object_type, object_id, uuid, operate_code, operate_result, operate_time, value, ip, server_id, owner_id)
+		VALUES
+			(<if test="id > 0">#{id},</if> #{objectType}, #{objectId}, #{uuid}, #{operateCode}, #{operateResult}, #{operateTime}, #{value}, #{ip}, #{serverId}, #{ownerId})
+	</insert>
+
+
+	<sql id="criteriaWhereClause">
+		<where>
+			<if test="objectType != null">
+				object_type=#{objectType}
+			</if>
+			<if test="objectId != null">
+				AND object_id=#{objectId}
+			</if>
+			<if test="uuid > 0">
+				AND uuid=#{uuid}
+			</if>
+			<if test="operateCode != null">
+				AND operate_code=#{operateCode}
+			</if>
+			<if test="operateResult != null">
+				AND operate_result in (			
+					<foreach item="item" collection="operateResult"  separator="," close="">
+	        			#{item}
+	  				</foreach>			
+  				)
+			</if>
+			<if test="beginTime != null">
+				AND operate_time &gt;=#{beginTime}
+			</if>
+			<if test="endTime != null">
+				AND operate_time &lt;=#{beginTime}
+			</if>
+			<if test="ip != null">
+				AND ip=#{ip}
+			</if>
+			<if test="serverId > 0">
+				AND server_id=#{serverId}
+			</if>
+			<if test="ownerId > 0">
+				AND owner_id = #{ownerId}
+		</if>
+		</where>
+	</sql>
+	
+	<sql id="selectColumns">
+			object_type,
+			object_id,
+			uuid,
+			operate_code,
+			operate_result,
+			operate_time,
+			value,
+			ip,
+			server_id,
+			owner_id
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="OperateLogResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			operate_log
+		<include refid="criteriaWhereClause"/>
+		ORDER BY
+			operate_time DESC
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			operate_log
+		<include refid="criteriaWhereClause"/>
+	</select>
+	
+	<select id="getFrequentObjectId" parameterType="map" resultType="long">
+		SELECT
+			object_id			
+		FROM
+			operate_log
+		<include refid="criteriaWhereClause"/>
+		GROUP BY object_id
+		ORDER BY
+			count(*) DESC
+		LIMIT 1
+	</select>
+	
+	<select id="getRecentObjectId" parameterType="map" resultType="long">
+		SELECT
+			object_id	
+		FROM
+			operate_log
+		<include refid="criteriaWhereClause"/>
+		ORDER BY
+			operate_time DESC
+		LIMIT 1
+	</select>
+
+	<delete id="clearOldLog" parameterType="map">
+		DELETE	FROM
+			operate_log
+		WHERE
+			date_format(operate_time,'%Y%m%d%H') &lt; #{endTime}
+	</delete>
+	
+	<select id="findPeriod" parameterType="map" resultType="long">
+		SELECT
+			object_id			
+		FROM
+			operate_log
+		<include refid="criteriaWhereClause"/>
+		GROUP BY object_id
+		ORDER BY
+			count(*) DESC
+		LIMIT 1
+	</select>
+
+</mapper>

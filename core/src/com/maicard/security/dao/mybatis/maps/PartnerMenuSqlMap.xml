@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:57:34 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.security.dao.mapper.PartnerMenuMapper">
+
+	<resultMap id="partnerMenuResult" type="com.maicard.security.entity.Menu">
+		<result property="id" column="id"/>
+		<result property="menuName" column="menu_name"/>
+		<result property="menuUrl" column="menu_url"/>
+		<result property="parameter" column="parameter"/>
+		<result property="resourceId" column="resource_id"/>
+		<result property="parentMenuId" column="parent_menu_id"/>
+		<result property="menuLevel" column="menu_level"/>
+		<result property="weight" column="weight"/>
+		<result property="currentStatus" column="current_status"/>
+		<result property="ownerId" column="owner_id"/>
+	</resultMap>
+	
+	<sql id="selectColumns">
+			id,
+			menu_name,
+			menu_url,
+			parameter,
+			resource_id,
+			parent_menu_id,
+			menu_level,
+			weight,
+			current_status,
+			owner_id
+	</sql>
+
+	<insert id="insert" parameterType="com.maicard.security.entity.Menu" useGeneratedKeys="true"  keyProperty="id">
+		INSERT INTO partner_menu
+			(<if test="id>0">id,</if> owner_id, menu_name, menu_url, parameter, resource_id, parent_menu_id,menu_level, weight, current_status)
+		VALUES
+			(<if test="id>0">#{id},</if> #{ownerId}, #{menuName}, #{menuUrl}, #{parameter}, #{resourceId}, #{parentMenuId}, #{menuLevel}, #{weight}, #{currentStatus})
+	</insert>
+
+	<update id="update" parameterType="com.maicard.security.entity.Menu">
+		UPDATE
+			partner_menu
+		SET
+			menu_name = #{menuName},
+			menu_url = #{menuUrl},		
+			parameter = #{parameter},
+			resource_id = #{resourceId},	
+			parent_menu_id = #{parentMenuId},
+			menu_level = #{menuLevel},
+			weight = #{weight},
+			current_status = #{currentStatus},
+			owner_id = #{ownerId}
+		WHERE
+			id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			partner_menu
+		WHERE
+			id = #{id}
+	</delete>
+	
+	<select id="select" parameterType="long" resultMap="partnerMenuResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			partner_menu
+		WHERE
+			id = #{id}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+			owner_id = #{ownerId}
+			<if test="@com.maicard.misc.Ognl@isValueArray(currentStatus)">
+				AND current_status in 
+				<foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+	        			#{item}
+	  			</foreach>				
+	  	</if>
+	  	</where>
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="partnerMenuResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			partner_menu
+		<include refid="criteriaWhereClause"/>
+		ORDER BY weight DESC, id
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			partner_menu
+		<include refid="criteriaWhereClause"/>
+	</select>
+
+</mapper>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.security.dao.mapper.PartnerRoleRelationMapper">
+
+	<resultMap id="partnerRoleRelationResult" type="com.maicard.security.entity.UserRoleRelation">
+		<result property="id" column="id"/>
+		<result property="roleId" column="role_id"/>
+		<result property="uuid" column="uuid"/>
+		<result property="currentStatus" column="current_status"/>
+	</resultMap>
+
+	<insert id="insert" parameterType="com.maicard.security.entity.UserRoleRelation" useGeneratedKeys="true"  keyProperty="id">
+		INSERT INTO partner_role_relation
+			(<if test="id>0">id,</if>role_id, uuid, current_status)
+		VALUES
+			(<if test="id>0">#{id},</if>#{roleId}, #{uuid}, #{currentStatus})
+	</insert>
+
+	<update id="update" parameterType="com.maicard.security.entity.UserRoleRelation">
+		UPDATE
+			partner_role_relation
+		SET
+			role_id = #{roleId},
+			uuid = #{uuid},
+			current_status = #{currentStatus}
+		WHERE
+			id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			partner_role_relation
+		WHERE
+			id = #{id}
+	</delete>
+	
+	<delete id="deleteBy" parameterType="map">
+		DELETE FROM
+			partner_role_relation
+		<include refid="criteriaWhereClause"/>
+	</delete>
+	<select id="select" parameterType="long" resultMap="partnerRoleRelationResult">
+		SELECT
+			id,
+			role_id,
+			uuid,
+			current_status
+		FROM
+			partner_role_relation
+		WHERE
+			id = #{id}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+		<if test="@com.maicard.misc.Ognl@isValueArray(currentStatus)">
+			current_status in 
+				<foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+	        			#{item}
+	  			</foreach>				
+	  	</if>
+
+		<if test="@com.maicard.misc.Ognl@isNotZero(uuid)">
+			AND uuid=#{uuid}
+		</if>
+		<if test="@com.maicard.misc.Ognl@isValueArray(roleIds)">
+			AND role_id IN
+			<foreach item="item" collection="roleIds" open="(" separator="," close=")">
+	        			#{item}
+	  			</foreach>	
+		</if>
+		</where>
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="partnerRoleRelationResult">
+		SELECT
+			id,
+			role_id,
+			uuid,
+			current_status
+		FROM
+			partner_role_relation
+		<include refid="criteriaWhereClause"/>
+		ORDER BY
+			id ASC
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			partner_role_relation
+		<include refid="criteriaWhereClause"/>
+	</select>
+
+</mapper>

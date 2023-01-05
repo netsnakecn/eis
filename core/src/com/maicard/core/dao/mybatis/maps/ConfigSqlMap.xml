@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:50:09 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.core.dao.mapper.ConfigMapper">
+
+	<resultMap id="configResult" type="com.maicard.core.entity.Config">
+		<result property="id" column="id"/>
+		<result property="configName" column="config_name"/>
+		<result property="configValue" column="config_value"/>
+		<result property="configDescription" column="config_description"/>
+		<result property="currentStatus" column="current_status"/>
+		<result property="flag" column="flag"/>
+		<result property="serverId" column="server_id"/>
+		<result property="displayLevel" column="display_level"/>
+		<result property="category" column="category"/>
+		<result property="ownerId" column="owner_id"/>
+	</resultMap>
+
+	<insert id="insert" parameterType="com.maicard.core.entity.Config" useGeneratedKeys="true"  keyProperty="id">
+		INSERT INTO config
+			(<if test="id>0">`id`,</if>owner_id, config_name, config_value, config_description, current_status, flag, display_level, server_id, category)
+		VALUES
+			(<if test="id>0">#{id},</if>#{ownerId}, #{configName}, #{configValue}, #{configDescription}, #{currentStatus}, #{flag}, #{displayLevel}, #{serverId}, #{category})
+	</insert>
+	
+	<sql id="selectColumns">
+			`id`,
+			config_name,
+			config_value,
+			config_description,
+			current_status,
+			flag,
+			server_id,
+			display_level,
+			category,
+			owner_id
+	</sql>
+
+	<update id="update" parameterType="com.maicard.core.entity.Config">
+		UPDATE
+			config
+		SET
+			config_name = #{configName},
+			config_value = #{configValue},
+			config_description = #{configDescription},
+			current_status = #{currentStatus},
+			flag = #{flag},
+			server_id = #{serverId},
+			display_level = #{displayLevel},
+			category = #{category},
+			owner_id = #{ownerId}
+		WHERE
+			`id` = #{id} 
+			
+	</update>
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			config
+		WHERE
+			`id` = #{id}
+			AND owner_id = #{ownerId}
+	</delete>
+	
+	<select id="select" parameterType="long" resultMap="configResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			config
+		WHERE
+			`id` = #{id}
+	</select>
+	
+	<select id="selectByName" parameterType="java.util.Map" resultMap="configResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			config
+		<where>
+			config_name = #{configName}
+			<if test="@com.maicard.misc.Ognl@isNotZero(serverId)">
+				AND server_id in (#{serverId},0)
+			</if>
+			<if test="@com.maicard.misc.Ognl@isNotZero(ownerId)">
+				AND owner_id in (#{ownerId},0)
+			</if>
+		</where>
+		<if test="@com.maicard.misc.Ognl@isNotZero(serverId)">
+			ORDER BY owner_id DESC, server_id DESC
+		</if>
+		LIMIT 1
+
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+			<if test="@com.maicard.misc.Ognl@isNotEmpty(configName)">
+				config_name=#{configName}
+			</if>
+			<if test="@com.maicard.misc.Ognl@isNotZero(serverId)">
+				AND server_id=#{serverId}
+			</if>
+			<if test="@com.maicard.misc.Ognl@isNotEmpty(category)">
+				AND category  = #{category}
+	  		</if>
+			<if test="@com.maicard.misc.Ognl@isValueArray(categories)">
+				AND category in
+				<foreach item="item" collection="categories" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="@com.maicard.misc.Ognl@isValueArray(displayLevel)">
+				AND display_level in
+				<foreach item="item" collection="displayLevel" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="@com.maicard.misc.Ognl@isNotZero(ownerId)">
+				AND owner_id in (#{ownerId},0)
+			</if>
+			<if test="@com.maicard.misc.Ognl@isValueArray(currentStatus)">
+				AND current_status in 
+				<foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+	        			#{item}
+	  			</foreach>				
+	  		</if>
+			<if test="id > 0">
+				AND `id` = #{id}
+			</if>
+		</where>
+	</sql>
+	
+	<sql id="rowLimit">
+		<if test="@com.maicard.misc.Ognl@isNotZero(limits)">
+        LIMIT 
+            #{starts, jdbcType=BIGINT},
+      	 	#{limits, jdbcType=BIGINT}
+        </if>
+	</sql>
+
+	<select id="list" parameterType="java.util.Map" resultMap="configResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			config
+		<include refid="criteriaWhereClause"/>
+		ORDER BY
+			category, owner_id, config_name
+		<include refid="rowLimit" />
+	</select>
+
+	<select id="count" parameterType="java.util.Map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			config
+		<include refid="criteriaWhereClause"/>
+	</select>
+
+</mapper>

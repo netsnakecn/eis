@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:53:58 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.money.dao.mapper.WithdrawMapper">
+
+	<resultMap id="withdrawResult" type="com.maicard.money.entity.Withdraw">
+		<result property="transactionId" column="transaction_id"/>
+		<result property="parentTransactionId" column="parent_transaction_id"/>
+	    <result property="withdrawTypeId" column="withdraw_type_id"/>
+	    <result property="withdrawMethodId" column="withdraw_method_id"/>
+		<result property="uuid" column="uuid"/>
+		<result property="lockByUuid" column="lock_by_uuid"/>
+		<result property="withdrawMoney" column="withdraw_money"/>
+		<result property="arriveMoney" column="arrive_money"/>
+		<result property="moneyBeforeWithdraw" column="money_before_withdraw"/>
+		<result property="moneyAfterWithdraw" column="money_after_withdraw"/>
+		<result property="bankAccountId" column="bank_account_id"/>
+		<result property="bankAccount" column="bank_account" javaType="com.maicard.money.entity.BankAccount" jdbcType="VARCHAR" typeHandler="com.maicard.money.th.BankAccountJsonHandler" />
+		<result property="fromBankAccountId" column="from_bank_account_id"/>
+		<result property="fromBankAccount" column="from_bank_account" javaType="com.maicard.money.entity.BankAccount" jdbcType="VARCHAR" typeHandler="com.maicard.money.th.BankAccountJsonHandler" />
+		<result property="beginTime" column="begin_time"/>
+		<result property="processTime" column="process_time"/>
+		<result property="ttl" column="ttl"/>
+		<result property="endTime" column="end_time"/>
+		<result property="inOrderId" column="in_order_id"/>
+		<result property="inNotifyUrl" column="in_notify_url"/>
+		<result property="outOrderId" column="out_order_id"/>
+		<result property="totalRequest" column="total_request"/>
+		<result property="successRequest" column="success_request"/>
+		<result property="failRequest" column="fail_request"/>
+		<result property="data" column="data" javaType="HashMap" jdbcType="VARCHAR" typeHandler="com.maicard.th.TextHashMapTypeHandler"/>
+		<result property="commission" column="commission"/>
+		<result property="commissionType" column="commission_type"/>				
+		<result property="commissionChargeType" column="commission_charge_type"/>	
+		<result property="currentStatus" column="current_status"/>
+		<result property="extraStatus" column="extra_status"/>
+		<result property="ownerId" column="owner_id"/>
+		<result property="tradeVersion" column="trade_version" jdbcType="VARCHAR"/>
+		<result property="memberNo" column="member_no" jdbcType="VARCHAR"/>
+		<result property="curChannelRequestNo" column="cur_channel_request_no" jdbcType="VARCHAR"/>
+		<result property="channelStatus" column="channel_status" jdbcType="VARCHAR"/>
+		<result property="manualType" column="manual_type" jdbcType="VARCHAR"/>
+		<result property="tradeSource" column="trade_source" jdbcType="VARCHAR"/>
+		<result property="withdrawMode" column="withdraw_mode"/>
+		<result property="payeeType" column="payee_type"/>
+		<result property="businessCode" column="business_code"/>
+		<result property="reason" column="reason"/>
+		<result property="currency" column="currency"/>
+	</resultMap>
+	
+	<sql id="rowLimit">
+		<if test="limits &gt; 0">
+        LIMIT 
+            #{starts, jdbcType=BIGINT},
+      	 	#{limits, jdbcType=BIGINT}
+        </if>
+	</sql>
+	
+	<insert id="insert" parameterType="com.maicard.money.entity.Withdraw">
+		INSERT INTO withdraw
+			(<if test="id > 0">id,</if>owner_id, withdraw_type_id, withdraw_method_id, transaction_id, parent_transaction_id, uuid, lock_by_uuid, withdraw_money, arrive_money, money_before_withdraw, money_after_withdraw, bank_account_id, bank_account, from_bank_account_id, from_bank_account,
+			begin_time, process_time, ttl, end_time, in_order_id, in_notify_url, out_order_id, total_request, success_request, fail_request, current_status, extra_status, data,
+			commission, commission_type, commission_charge_type,trade_version,member_no,cur_channel_request_no,channel_status,manual_type,trade_source,withdraw_mode,payee_type, business_code, reason,currency)
+		VALUES
+			(<if test="id > 0">#{id},</if>#{ownerId}, #{withdrawTypeId}, #{withdrawMethodId}, #{transactionId}, #{parentTransactionId}, #{uuid}, #{lockByUuid}, #{withdrawMoney}, #{arriveMoney}, #{moneyBeforeWithdraw},  #{moneyAfterWithdraw},  #{bankAccountId}, #{bankAccount, javaType=com.maicard.money.entity.BankAccount, jdbcType=VARCHAR, typeHandler=com.maicard.money.th.BankAccountJsonHandler}, #{fromBankAccountId}, #{fromBankAccount, javaType=com.maicard.money.entity.BankAccount, jdbcType=VARCHAR, typeHandler=com.maicard.money.th.BankAccountJsonHandler},
+			#{beginTime}, #{processTime}, #{ttl}, #{endTime}, #{inOrderId}, #{inNotifyUrl}, #{outOrderId}, #{totalRequest}, #{successRequest}, #{failRequest},
+			#{currentStatus}, #{extraStatus}, #{data, javaType=HashMap, jdbcType=VARCHAR , typeHandler=com.maicard.th.TextHashMapTypeHandler}, #{commission}, #{commissionType}, #{commissionChargeType}, #{tradeVersion}, #{memberNo}, #{curChannelRequestNo}, #{channelStatus}, #{manualType}, #{tradeSource}, #{withdrawMode}, #{payeeType}, #{businessCode}, #{reason},#{currency})
+	</insert>
+	
+	<sql id="selectColumns">
+	    a.transaction_id,
+	    a.parent_transaction_id,
+		a.withdraw_type_id,
+		a.withdraw_method_id,
+		a.uuid,
+		a.lock_by_uuid,
+		a.withdraw_money,
+		a.arrive_money,
+		a.money_before_withdraw,
+		a.money_after_withdraw,
+		a.bank_account_id,
+		a.bank_account,
+		a.from_bank_account_id,
+		a.from_bank_account,
+		a.begin_time,
+		a.process_time,
+		a.ttl,
+		a.end_time,
+		a.in_order_id,
+		a.in_notify_url,
+		a.out_order_id,
+		a.total_request,
+		a.success_request,
+		a.fail_request,
+		a.current_status,
+		a.extra_status,
+		a.data,
+		a.commission,
+		a.commission_type,
+		a.commission_charge_type,
+		a.owner_id,
+		a.trade_version,
+		a.member_no,
+		a.cur_channel_request_no,
+		a.channel_status,
+		a.manual_type,
+		a.trade_source,
+		a.payee_type,
+		a.withdraw_mode,
+		a.business_code,
+		a.reason,
+		a.currency
+	</sql>
+
+	<update id="update" parameterType="com.maicard.money.entity.Withdraw">
+		UPDATE
+			withdraw
+		SET
+			parent_transaction_id = #{parentTransactionId},
+			withdraw_type_id = #{withdrawTypeId},
+			withdraw_method_id = #{withdrawMethodId},
+			uuid = #{uuid},
+			lock_by_uuid = #{lockByUuid},
+			withdraw_money = #{withdrawMoney},
+			arrive_money = #{arriveMoney},
+			money_before_withdraw = #{moneyBeforeWithdraw},
+			money_after_withdraw = #{moneyAfterWithdraw},
+			bank_account_id = #{bankAccountId},
+			bank_account = #{bankAccount,javaType=com.maicard.money.entity.BankAccount, jdbcType=VARCHAR, typeHandler=com.maicard.money.th.BankAccountJsonHandler},
+			from_bank_account_id = #{fromBankAccountId},
+			from_bank_account = #{fromBankAccount,javaType=com.maicard.money.entity.BankAccount, jdbcType=VARCHAR, typeHandler=com.maicard.money.th.BankAccountJsonHandler},
+			begin_time = #{beginTime},
+			process_time = #{processTime},
+			ttl = #{ttl},
+			end_time = #{endTime},
+			in_order_id = #{inOrderId},
+			in_notify_url = #{inNotifyUrl},
+			in_notify_url = #{inNotifyUrl},			 
+			out_order_id = #{outOrderId},
+			total_request = #{totalRequest},
+			success_request = #{successRequest},
+			fail_request = #{failRequest},
+			current_status = #{currentStatus},
+			extra_status = #{extraStatus},
+			data = #{data,javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler},
+			commission = #{commission},
+			commission_type = #{commissionType},
+			commission_charge_type = #{commissionChargeType},
+			currency = #{currency},
+			<if test="curChannelRequestNo != null and curChannelRequestNo !='' ">
+				cur_channel_request_no = #{curChannelRequestNo},
+			</if>
+			<if test="channelStatus != null and channelStatus !='' ">
+				channel_status = #{channelStatus},
+			</if>
+			<if test="withdrawMode != null and withdrawMode !='' ">
+				withdraw_mode = #{withdrawMode},
+			</if>
+		    manual_type = #{manualType, jdbcType=VARCHAR},
+		    business_code = #{businessCode, jdbcType=VARCHAR},
+		    reason = #{reason}
+		WHERE
+			transaction_id = #{transactionId}
+		<if test="lockStatus > 0">
+			AND current_status = #{lockStatus}
+		</if>
+			
+	</update>
+
+	<delete id="delete" parameterType="com.maicard.money.entity.Withdraw">
+		DELETE FROM
+			withdraw
+		WHERE
+			transaction_id = #{transactionId}
+	</delete>
+	
+	<select id="selectByTx" parameterType="String" resultMap="withdrawResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			withdraw AS a LEFT JOIN bank_account AS b ON a.bank_account_id = b.id
+		WHERE
+			a.transaction_id = #{transactionId}
+	</select>
+	
+	<select id="select" parameterType="long" resultMap="withdrawResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			withdraw AS a LEFT JOIN bank_account AS b ON a.bank_account_id = b.id
+		WHERE
+			a.id = #{id}
+	</select>
+
+	<select id="queryByChannelRequestNo" parameterType="com.maicard.money.entity.Withdraw" resultMap="withdrawResult">
+		SELECT
+		<include refid="selectColumns"/>
+		FROM
+		withdraw AS a LEFT JOIN bank_account AS b ON a.bank_account_id = b.id
+		WHERE
+		a.cur_channel_request_no = #{curChannelRequestNo}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+			<if test="inviters !=null and inviters.length > 0">
+				a.uuid in (
+				<foreach item="item" collection="inviters"
+						 separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="lockByUuid > 0">
+				AND a.lock_by_uuid = #{lockByUuid}
+			</if>
+			<if test="currentStatus != null and currentStatus.length > 0">
+				AND a.current_status in
+				<foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="extraStatus != null and extraStatus.length > 0">
+				AND a.extra_status in
+				<foreach item="item" collection="extraStatus" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="inOrderId != null and inOrderId !='' ">
+				AND a.in_order_id=#{inOrderId}
+			</if>
+			<if test="withdrawMethodId > 0">
+				AND a.withdraw_method_id=#{withdrawMethodId}
+			</if>
+			<if test="outOrderId != null and outOrderId !='' ">
+				AND a.out_order_id=#{outOrderId}
+			</if>
+			<if test="transactionId != null and transactionId !='' ">
+				AND a.transaction_id=#{transactionId}
+			</if>
+
+			<if test="manualType != null and manualType !=''">
+				AND a.manual_type = #{manualType,jdbcType=VARCHAR}
+			</if>
+			<if test="channelStatus != null and channelStatus !=''">
+				AND a.channel_status = #{channelStatus,jdbcType=VARCHAR}
+			</if>
+			<if test="curChannelRequestNo != null and curChannelRequestNo !=''">
+				AND a.cur_channel_request_no = #{curChannelRequestNo,jdbcType=VARCHAR}
+			</if>
+			<if test="parentTransactionId != null and parentTransactionId !='' ">
+				AND a.parent_transaction_id=#{parentTransactionId}
+			</if>
+			<if test="uuid > 0">
+				AND a.uuid=#{uuid}
+			</if>
+
+			<if test="bankCode != null">
+				AND b.bank_code = #{bankCode}
+			</if>
+			<if test="bankName != null">
+				AND b.bank_name = #{bankName}
+			</if>
+			<if test="fuzzyBankAccountName != null and fuzzyBankAccountName !='' ">
+				AND b.bank_account_name LIKE concat("%", #{fuzzyBankAccountName}, "%")
+			</if>
+			<if test="fuzzyBankAccountNumber != null and fuzzyBankAccountNumber !='' ">
+				AND b.bank_account_number LIKE concat("%", #{fuzzyBankAccountNumber}, "%")
+			</if>
+			<if test="includeSubOrder > 0">
+				AND a.parent_transaction_id IS NULL
+			</if>
+			<if test="includeSubOrder = 0">
+				AND a.parent_transaction_id IS NOT NULL
+			</if>
+
+			<if test="bankAccountIds !=null and bankAccountIds.length > 0">
+				AND a.bank_account_id in (
+				<foreach item="item" collection="bankAccountIds"
+						 separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="fromBankAccountIds !=null and fromBankAccountIds.length > 0">
+				AND a.from_bank_account_id in (
+				<foreach item="item" collection="fromBankAccountIds"
+						 separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="beginTimeBegin != null">
+				AND a.begin_time &gt;=#{beginTimeBegin}
+			</if>
+			<if test="beginTimeEnd != null">
+				AND a.begin_time &lt;=#{beginTimeEnd}
+			</if>
+			<if test="memberNo != null">
+				AND a.member_no =#{memberNo}
+			</if>
+			<if test="businessCode != null and businessCode.length > 0">
+				AND a.business_code IN (
+				<foreach item="item" collection="businessCode"
+						 separator="," close=")">
+					#{item}
+				</foreach>
+				
+			</if>
+			<if test="minMoney > 0">
+				AND a.withdraw_money &gt;=#{minMoney}
+			</if>
+			<if test="maxMoney > 0">
+				AND a.withdraw_money &lt;=#{maxMoney}
+			</if>
+			<if test="currency != null">
+				AND a.currency = #{currency}
+			</if>
+			<if test="withdrawMode != null">
+				AND a.withdraw_mode = #{withdrawMode}
+			</if>
+			<if test="ownerId > 0">
+				AND a.owner_id = #{ownerId}
+			</if>
+		</where>
+	</sql>
+
+	
+	<select id="list" parameterType="map" resultMap="withdrawResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			withdraw AS a LEFT JOIN bank_account AS b ON a.bank_account_id = b.id
+		<include refid="criteriaWhereClause"/>
+
+		<choose>
+			<when test="orderBy != null">
+				ORDER BY ${orderBy}
+			</when>
+			<otherwise>
+				ORDER BY begin_time DESC
+			</otherwise>
+		</choose>
+
+		<include refid="rowLimit" />
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">			
+		SELECT
+			count(*)
+		FROM
+			withdraw AS a LEFT JOIN bank_account AS b ON a.bank_account_id = b.id
+		<include refid="criteriaWhereClause"/>
+	</select>
+
+	<!--人工操作修改订单状态-->
+	<update id="updateWithdrawForManualOperate" parameterType="java.util.Map">
+
+		UPDATE withdraw SET  MANUAL_TYPE =  #{newManualType,jdbcType=VARCHAR} ,CUR_CHANNEL_REQUEST_NO =  #{newCurChannelRequestNo,jdbcType=VARCHAR}
+		, CHANNEL_STATUS =  #{newChannelStatus,jdbcType=VARCHAR}
+		WHERE transaction_id = #{transactionId,jdbcType=VARCHAR}
+		<if test="manualType != null and manualType !=''">
+			AND   MANUAL_TYPE =  #{manualType,jdbcType=VARCHAR}
+		</if>
+		<if test="curChannelRequestNo != null and curChannelRequestNo !=''">
+			AND CUR_CHANNEL_REQUEST_NO =  #{curChannelRequestNo,jdbcType=VARCHAR}
+		</if>
+		<if test="channelStatus != null and channelStatus !=''">
+			AND  CHANNEL_STATUS =  #{channelStatus,jdbcType=VARCHAR}
+		</if>
+	</update>
+</mapper>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:54:02 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.money.dao.mapper.PayTypeMapper">
+
+	<resultMap id="payTypeResult" type="com.maicard.money.entity.PayType">
+		<result property="id" column="id"/>
+		<result property="name" column="name"/>
+		<result property="description" column="description"/>
+		<result property="currentStatus" column="current_status"/>
+		<result property="flag" column="flag"/>
+		<result property="logoUrl" column="logo_url"/>
+		<result property="validAmount" column="valid_amount"/>
+		<result property="cardSerialnumberLength" column="card_serialnumber_length"/>
+		<result property="cardPasswordLength" column="card_password_length"/>
+		<result property="publicRate" column="public_rate"/>
+		<result property="inputType" column="input_type"/>
+		<result property="currency" column="currency"/>
+		<result property="ownerId" column="owner_id"/>
+	</resultMap>
+
+	<sql id="selectColumns">
+		id,
+		name,
+		description,
+		current_status,
+		flag,
+		weight,
+		logo_url,
+		valid_amount,
+		card_serialnumber_length,
+		card_password_length,
+		public_rate,
+		input_type,
+		currency,
+		owner_id
+	</sql>
+
+	<insert id="insert" parameterType="com.maicard.money.entity.PayType" useGeneratedKeys="true"  keyProperty="id">
+		INSERT INTO pay_type
+		(<if test="id>0">id,</if>owner_id, name, description, current_status, flag, weight, logo_url, valid_amount,card_serialnumber_length, card_password_length,public_rate, input_type,currency)
+		VALUES
+		(<if test="id>0">#{id},</if>#{ownerId}, #{name}, #{description}, #{currentStatus}, #{flag}, #{weight}, #{logoUrl}, #{validAmount}, #{cardSerialnumberLength}, #{cardPasswordLength}, #{publicRate},#{inputType},#{currency} )
+	</insert>
+
+	<update id="update" parameterType="com.maicard.money.entity.PayType">
+		UPDATE
+		pay_type
+		SET
+		name = #{name},
+		description = #{description},
+		current_status = #{currentStatus},
+		flag = #{flag},
+		weight = #{weight},
+		logo_url = #{logoUrl},
+		valid_amount = #{validAmount},
+		card_serialnumber_length = #{cardSerialnumberLength},
+		card_password_length = #{cardPasswordLength},
+		public_rate = #{publicRate},
+		input_type = #{inputType},
+		currency = #{currency},
+		owner_id = #{ownerId}
+		WHERE
+		id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+		pay_type
+		WHERE
+		id = #{id}
+	</delete>
+
+	<select id="select" parameterType="long" resultMap="payTypeResult">
+		SELECT
+		<include refid="selectColumns"/>
+		FROM
+		pay_type
+		WHERE
+		id = #{id}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+			<if test="currentStatus != null">
+				current_status in
+				<foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="flag > 0">
+				AND flag = #{flag}
+			</if>
+			<if test="currency != null">
+				AND currency = #{currency}
+			</if>
+			<if test="ownerId > 0">
+				AND owner_id IN (#{ownerId},0)
+			</if>
+			<if test="id > 0">
+				AND `id` = #{id}
+			</if>
+		</where>
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="payTypeResult">
+		SELECT
+		<include refid="selectColumns"/>
+		FROM
+		pay_type
+		<include refid="criteriaWhereClause"/>
+
+		<choose>
+			<when test="orderBy != null">
+				ORDER BY ${orderBy}
+			</when>
+			<otherwise>
+				ORDER BY 		weight DESC, id ASC
+			</otherwise>
+		</choose>
+
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+		COUNT(*)
+		FROM
+		pay_type
+		<include refid="criteriaWhereClause"/>
+	</select>
+
+</mapper>

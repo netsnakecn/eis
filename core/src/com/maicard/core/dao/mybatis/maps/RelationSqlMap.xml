@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.core.dao.mapper.RelationMapper">
+	<resultMap id="RelationResult" type="com.maicard.core.entity.Relation">
+		<result property="id" column="id"/>
+		<result property="fromId" column="from_id"/>
+		<result property="toId" column="to_id"/>
+		<result property="toType" column="to_type"/>
+		<result property="relationLimit" column="relation_limit"/>
+		<result property="relationType" column="relation_type"/>
+		<result property="activity" column="activity"/>
+		<result property="fromType" column="from_type"/>
+		<result property="currentStatus" column="current_status"/>
+		<result property="memory" column="memory"/>
+	</resultMap>
+
+	<sql id="rowLimit">
+		<if test="limits &gt; 0">
+			LIMIT
+			#{starts, jdbcType=BIGINT},
+			#{limits, jdbcType=BIGINT}
+		</if>
+	</sql>
+    <sql id="selectColumns">
+        id,
+		from_type,
+		from_id,
+		to_type,
+		to_id,
+		relation_limit,
+		relation_type,
+		activity,
+		current_status,
+		memory
+    </sql>
+	<insert id="insert" parameterType="com.maicard.core.entity.Relation" useGeneratedKeys="true"  keyProperty="id">
+		INSERT INTO relation
+			(<if test="id>0">id,</if> memory, fromId, to_id, to_type, relation_limit, relation_type, activity, from_type, current_status)
+		VALUES
+			(<if test="id>0">#{id},</if> #{memory}, #{fromId}, #{toId},#{toType}, #{relationLimit}, #{relationType},  #{activity},  #{fromType}, #{currentStatus})
+	</insert>
+
+	<update id="update" parameterType="com.maicard.core.entity.Relation">
+		UPDATE
+			relation
+		SET
+			from_id = #{fromId},
+			to_id = #{toId},			
+			to_type = #{toType},
+			relation_limit = #{relationLimit},
+			relation_type = #{relationType},
+			activity = #{activity},
+			from_type = #{fromType},
+			current_status = #{currentStatus},
+			memory = #{memory}
+		
+		WHERE
+			id = #{id}
+	</update>
+	
+	
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			relation
+		WHERE
+			id = #{id}
+	</delete>
+	
+	<select id="select" parameterType="long" resultMap="RelationResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			relation
+		WHERE
+			id = #{id}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+			<if test="id > 0">
+				`id` = #{id}
+			</if>
+			<if test="@com.maicard.misc.Ognl@isNotEmpty(fromType)">
+				AND	from_type = #{fromType}
+			</if>
+			<if test="@com.maicard.misc.Ognl@isNotZero(fromId)">
+				AND from_id = #{fromId}
+		  	</if>
+			<if test="@com.maicard.misc.Ognl@isValueArray(fromIds)">
+				AND from_id in
+				<foreach item="item" collection="fromIds" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+		  	<if test="@com.maicard.misc.Ognl@isNotZero(toId)">
+				AND	to_id = #{toId}
+		  	</if>
+		  	<if test="@com.maicard.misc.Ognl@isNotEmpty(relationLimit)">
+				AND	relation_limit = #{relationLimit}
+		  	</if>
+		  	<if test="@com.maicard.misc.Ognl@isNotEmpty(relationType)">
+				AND	relation_type = #{relationType}
+		  	</if>
+			<if test="@com.maicard.misc.Ognl@isValueArray(relationTypes)">
+				AND relation_type in
+				<foreach item="item" collection="relationTypes" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+		  	<if test="@com.maicard.misc.Ognl@isNotEmpty(toType)">
+				AND	to_type = #{toType}
+		  	</if>
+
+		  	<if test="@com.maicard.misc.Ognl@isValueArray(currentStatus)">
+					AND current_status in 
+					<foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+		        			#{item}
+		  			</foreach>				
+		  	</if>
+			<if test="@com.maicard.misc.Ognl@isNotEmpty(noNegativeActivity) and noNegativeActivity == true">
+				AND	activity &gt;= 0
+			</if>
+			<if test="@com.maicard.misc.Ognl@isNotZero(shopId)">
+				AND	to_id IN (
+				SELECT to_id FROM relation WHERE
+				to_type='product' AND relation_type='own'
+				AND `from_type` = 'shop'
+				AND `from_id`=#{shopId}
+				)
+			</if>
+		</where>
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="RelationResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			relation
+		<include refid="criteriaWhereClause"/>
+		<if test="orderBy != null">
+		    ORDER BY ${orderBy}		    
+		</if>
+
+		<include refid="rowLimit" />
+
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			relation
+		<include refid="criteriaWhereClause"/>
+	</select>
+	
+	<delete id="deleteByCriteria" parameterType="int">
+		DELETE FROM
+			relation
+		<include refid="criteriaWhereClause"/>
+
+	</delete>
+
+
+</mapper>

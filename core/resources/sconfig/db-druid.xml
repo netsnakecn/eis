@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+	">
+
+	<!-- Normal Data source -->
+    <bean id="normalDataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init"
+          destroy-method="close">
+        <property name="url" value="${jdbc.url}"/>
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <!-- 开启druid监控支持(stat)，SQL防火墙(wall)以及SQL合并(mergeStat) -->
+        <property name="filters" value="stat,config,wall,mergeStat"/>
+
+        <property name="maxActive" value="25"/>
+        <property name="initialSize" value="3"/>
+        <property name="maxWait" value="60000"/>
+        <property name="minIdle" value="3"/>
+
+        <property name="timeBetweenEvictionRunsMillis" value="60000"/>
+        <property name="minEvictableIdleTimeMillis" value="300000"/>
+
+        <property name="testWhileIdle" value="true"/>
+        <property name="testOnBorrow" value="false"/>
+        <property name="testOnReturn" value="false"/>
+
+        <property name="poolPreparedStatements" value="true"/>
+        <property name="maxOpenPreparedStatements" value="20"/>
+        <property name="asyncInit" value="true"/>
+        <property name="connectionProperties" value="druid.stat.slowSqlMillis=1300;config.decrypt=false" /><!-- 慢SQL标准 -->
+    </bean>
+    <bean id="moneyDataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        <property name="url" value="${jdbcMoney.url}"/>
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="username" value="${jdbcMoney.username}"/>
+        <property name="password" value="${jdbcMoney.password}"/>
+        <!-- 开启druid监控支持(stat)，SQL防火墙(wall)以及SQL合并(mergeStat) -->
+        <property name="filters" value="stat,config,wall,mergeStat"/>
+
+        <property name="maxActive" value="20"/>
+        <property name="initialSize" value="1"/>
+        <property name="maxWait" value="60000"/>
+        <property name="minIdle" value="1"/>
+
+        <property name="timeBetweenEvictionRunsMillis" value="60000"/>
+        <property name="minEvictableIdleTimeMillis" value="300000"/>
+
+        <property name="testWhileIdle" value="true"/>
+        <property name="testOnBorrow" value="false"/>
+        <property name="testOnReturn" value="false"/>
+
+        <property name="poolPreparedStatements" value="true"/>
+        <property name="maxOpenPreparedStatements" value="20"/>
+        <property name="asyncInit" value="true"/>
+        <property name="connectionProperties" value="druid.stat.slowSqlMillis=1300;config.decrypt=false" /><!-- 慢SQL标准 -->
+    </bean>
+	
+	<!--
+	<bean id="dynamicDataSource" class="com.maicard.common.base.DynamicDataSource">  
+        <property name="targetDataSources">  
+            <map key-type="java.lang.String">  
+                <entry value-ref="normalDataSource" key="normalDataSource"></entry>  
+                <entry value-ref="moneyDataSource" key="moneyDataSource"></entry>  
+            </map>  
+        </property>  
+        <property name="defaultTargetDataSource" ref="normalDataSource">  
+        </property>  
+    </bean>  -->
+	
+	<!-- 使用新的、支持注解的动态数据源 -->
+	<bean id="dynamicDataSource" class="com.maicard.core.ds.RoutingDataSource">
+        <property name="targetDataSources">
+            <map>
+                <entry key="defaultDataSource" value-ref="normalDataSource"/>
+                <entry key="moneyDataSource" value-ref="moneyDataSource"/>
+            </map>
+        </property>
+        <property name="defaultTargetDataSource" ref="normalDataSource"/>
+    </bean>
+	
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dynamicDataSource"/>
+	</bean>
+ 	 <tx:annotation-driven transaction-manager="transactionManager" />
+	 
+	 <bean id="sqlSession"  class="org.mybatis.spring.SqlSessionTemplate">  
+        	<constructor-arg index="0" ref="sqlSessionFactory" />  
+    </bean> 
+	
+	
+	 <bean id="dataSourceSwitchAdapter" class="com.maicard.core.ds.DataSourceSwitcherAdapter"/>
+
+    <!--配置切换数据源的入口类，以Service结尾的服务层。-->
+    <!-- 为了更灵活的配置，此项目请在各自的content.xml中实现 
+    <aop:config>
+        <aop:pointcut expression="execution(* com.maicard..*Service.*(..) )" id="baseServiceMethods"/>
+        <aop:aspect ref="dataSourceSwitchAdapter" order="-2147483648">
+            <aop:around pointcut-ref="baseServiceMethods" method="doAround"/>
+        </aop:aspect>
+    </aop:config>
+	-->
+</beans>

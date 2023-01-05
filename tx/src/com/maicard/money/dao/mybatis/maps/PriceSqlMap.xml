@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:53:58 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.money.dao.mapper.PriceMapper">
+
+    <resultMap id="priceResult" type="com.maicard.money.entity.Price">
+        <result property="id" column="id"/>
+        <result property="priceType" column="price_type"/>
+        <result property="objectType" column="object_type"/>
+        <result property="objectId" column="object_id"/>
+        <result property="money" column="money"/>
+        <result property="coin" column="coin"/>
+        <result property="point" column="point"/>
+        <result property="score" column="score"/>
+        <result property="priceName" column="price_name"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="marketPrice" column="market_price"/>
+        <result property="identify" column="identify"/>
+        <result property="currentStatus" column="current_status"/>
+        <result property="ownerId" column="owner_id"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.maicard.money.entity.Price" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO price
+        (<if test="id>0">id,</if> owner_id, price_type, object_type, object_id, price_name, parent_id, money, coin,
+        point, score, market_price, identify, current_status)
+        VALUES
+        (<if test="id>0">#{id},</if> #{ownerId}, #{priceType}, #{objectType}, #{objectId}, #{priceName}, #{parentId},
+        #{money}, #{coin}, #{point}, #{score},#{marketPrice}, #{identify}, #{currentStatus})
+
+    </insert>
+
+    <sql id="selectColumns">
+        id,
+        price_type,
+        object_type,
+        object_id,
+        price_name,
+        parent_id,
+        money,
+        coin,
+        point,
+        score,
+        market_price,
+        identify,
+        current_status,
+        owner_id
+    </sql>
+
+    <update id="update" parameterType="com.maicard.money.entity.Price">
+        UPDATE
+        price
+        SET
+        price_type = #{priceType},
+        object_type = #{objectType},
+        object_id = #{objectId},
+        price_name = #{priceName},
+        parent_id = #{parentId},
+        money = #{money},
+        coin = #{coin},
+        point = #{point},
+        score = #{score},
+        market_price = #{marketPrice},
+        identify = #{identify},
+        current_status = #{currentStatus},
+        owner_id = #{ownerId}
+        WHERE
+        id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="com.maicard.money.entity.Price">
+        DELETE FROM
+        price
+        WHERE
+        id = #{id}
+    </delete>
+
+    <select id="select" parameterType="com.maicard.money.entity.Price" resultMap="priceResult">
+        SELECT
+        <include refid="selectColumns"/>
+        FROM
+        price
+        WHERE
+        id = #{id}
+    </select>
+
+    <sql id="criteriaWhereClause">
+        <where>
+            <if test="currentStatus != null">
+                current_status in
+                <foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="objectId > 0">
+                AND object_id = #{objectId}
+            </if>
+            <if test="objectType != null">
+                AND object_type=#{objectType}
+            </if>
+            <if test="priceType != null">
+                AND price_type=#{priceType}
+            </if>
+            <if test="identify != null">
+                AND identify=#{identify}
+            </if>
+            <if test="identify != null">
+                AND identify=#{identify}
+            </if>
+            <if test="ownerId > 0">
+                AND owner_id = #{ownerId}
+            </if>
+            <if test="money > 0">
+                AND money = #{money}
+            </if>
+            <if test="id > 0">
+                AND `id` = #{id}
+            </if>
+        </where>
+    </sql>
+    <sql id="rowLimit">
+        <if test="limits &gt; 0">
+            LIMIT
+            #{starts, jdbcType=BIGINT},
+            #{limits, jdbcType=BIGINT}
+        </if>
+    </sql>
+    <select id="list" parameterType="map" resultMap="priceResult">
+        SELECT
+        <include refid="selectColumns"/>
+        FROM
+        price
+        <include refid="criteriaWhereClause"/>
+        <if test="orderBy != null">
+            ORDER BY ${orderBy}
+        </if>
+        <include refid="rowLimit"/>
+
+    </select>
+
+    <select id="count" parameterType="map" resultType="int">
+        SELECT
+        count(*)
+        FROM
+        price
+        <include refid="criteriaWhereClause"/>
+    </select>
+
+</mapper>

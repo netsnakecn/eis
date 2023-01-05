@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:57:50 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.security.dao.mapper.PartnerRoleMapper">
+
+    <resultMap id="partnerRoleResult" type="com.maicard.security.entity.Role">
+        <result property="id" column="id"/>
+        <result property="parentRoleId" column="parent_role_id"/>
+        <result property="roleLevel" column="role_level"/>
+        <result property="roleType" column="role_type"/>
+        <result property="roleName" column="role_name"/>
+        <result property="roleDescription" column="role_description"/>
+        <result property="currentStatus" column="current_status"/>
+        <result property="flag" column="flag"/>
+        <result property="ownerId" column="owner_id"/>
+    </resultMap>
+
+    <sql id="selectColumns">
+        id,
+        parent_role_id,
+        role_level,
+        role_type,
+        role_name,
+        role_description,
+        current_status,
+        flag,
+        owner_id
+    </sql>
+    <insert id="insert" parameterType="com.maicard.security.entity.Role" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO partner_role
+        (<if test="id>0">id,</if>owner_id, parent_role_id, role_level,role_type, role_name, role_description,
+        current_status,flag)
+        VALUES
+        (<if test="id>0">#{id},</if>#{ownerId}, #{parentRoleId}, #{roleLevel}, #{roleType}, #{roleName},
+        #{roleDescription}, #{currentStatus}, #{flag})
+
+    </insert>
+
+    <update id="update" parameterType="com.maicard.security.entity.Role">
+        UPDATE
+        partner_role
+        SET
+        parent_role_id = #{parentRoleId},
+        role_level = #{roleLevel},
+        role_type = #{roleType},
+        role_name = #{roleName},
+        role_description = #{roleDescription},
+        current_status = #{currentStatus},
+        flag = #{flag},
+        owner_id = #{ownerId}
+        WHERE
+        id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="long">
+        DELETE FROM
+        partner_role
+        WHERE
+        id = #{id}
+    </delete>
+
+    <select id="select" parameterType="long" resultMap="partnerRoleResult">
+        SELECT
+        <include refid="selectColumns"/>
+        FROM
+        partner_role
+        WHERE
+        id = #{id}
+    </select>
+
+    <sql id="criteriaWhereClause">
+        <where>
+            <if test="@com.maicard.misc.Ognl@isValueArray(currentStatus)">
+                current_status in
+                <foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotZero(ownerId)">
+                AND owner_id = #{ownerId}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotZero(roleLevel)">
+                AND role_level = #{roleLevel}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isValueArray(roleLevels)">
+                AND role_level in
+                <foreach item="item" collection="roleLevels" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(q)">
+                AND (
+                role_name LIKE concat('%', '${q}', '%')
+                OR
+                role_desc LIKE concat('%', '${q}', '%')
+                )
+            </if>
+            <if test="id > 0">
+                AND `id` = #{id}
+            </if>
+        </where>
+    </sql>
+
+    <select id="list" parameterType="map" resultMap="partnerRoleResult">
+        SELECT
+        <include refid="selectColumns"/>
+        FROM
+        partner_role
+        <include refid="criteriaWhereClause"/>
+        <if test="orderBy != null">
+            ORDER BY ${orderBy}
+        </if>
+
+    </select>
+
+    <select id="count" parameterType="map" resultType="int">
+        SELECT
+        COUNT(*)
+        FROM
+        partner_role
+        <include refid="criteriaWhereClause"/>
+    </select>
+
+</mapper>

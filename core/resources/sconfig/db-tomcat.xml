@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:aop="http://www.springframework.org/schema/aop"
+xmlns:tx="http://www.springframework.org/schema/tx"
+xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                     http://www.springframework.org/schema/beans/spring-beans.xsd 
+                     http://www.springframework.org/schema/tx 
+                     http://www.springframework.org/schema/tx/spring-tx.xsd 
+                     http://www.springframework.org/schema/aop 
+                     http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+<!-- Normal Data source -->
+	<bean id="normalDataSource" class="org.apache.tomcat.jdbc.pool.DataSource" destroy-method="close">
+		<property name="poolProperties">  
+            <bean class="org.apache.tomcat.jdbc.pool.PoolProperties">  
+                <property name="url" value="${jdbc.url}"/>  
+                <property name="driverClassName" value="com.mysql.jdbc.Driver"/>  
+                <property name="username" value="${jdbc.username}"/>  
+                <property name="password" value="${jdbc.password}"/>  
+                <property name="jmxEnabled" value="false"/>  
+                <property name="testWhileIdle" value="true"/>  
+                <property name="testOnBorrow" value="true"/>  
+                <property name="validationInterval" value="30000"/>  
+                <property name="testOnReturn" value="false"/>  
+                <property name="validationQuery" value="select 1"/>  
+                <property name="timeBetweenEvictionRunsMillis" value="30000"/>  
+                <property name="maxActive" value="40"/>  
+                <property name="initialSize" value="2"/>  
+                <property name="maxWait" value="3600"/>  
+                <property name="removeAbandonedTimeout" value="60"/>  
+                <property name="minEvictableIdleTimeMillis" value="30000"/>  
+                <property name="maxIdle" value="2"/>  
+                <property name="minIdle" value="2"/>  
+                <property name="logAbandoned" value="true"/>  
+                <property name="removeAbandoned" value="true"/>  
+                <property name="jdbcInterceptors" value="org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer"/>  
+            </bean>  
+        </property>
+	</bean>
+	<!--  Money datasource -->
+	<bean id="moneyDataSource" class="org.apache.tomcat.jdbc.pool.DataSource" destroy-method="close">
+		<property name="poolProperties">  
+            <bean class="org.apache.tomcat.jdbc.pool.PoolProperties">  
+                <property name="url" value="${jdbcMoney.url}"/>  
+                <property name="driverClassName" value="com.mysql.jdbc.Driver"/>  
+                <property name="username" value="${jdbcMoney.username}"/>  
+                <property name="password" value="${jdbcMoney.password}"/>  
+                <property name="jmxEnabled" value="false"/>  
+                <property name="testWhileIdle" value="true"/>  
+                <property name="testOnBorrow" value="true"/>  
+                <property name="validationInterval" value="30000"/>  
+                <property name="testOnReturn" value="false"/>  
+                <property name="validationQuery" value="select 1"/>  
+                <property name="timeBetweenEvictionRunsMillis" value="30000"/>  
+                <property name="maxActive" value="40"/>  
+                <property name="initialSize" value="2"/>  
+                <property name="maxWait" value="3600"/>  
+                <property name="removeAbandonedTimeout" value="60"/>  
+                <property name="minEvictableIdleTimeMillis" value="30000"/>  
+                <property name="maxIdle" value="2"/>  
+                <property name="minIdle" value="2"/>  
+                <property name="logAbandoned" value="true"/>  
+                <property name="removeAbandoned" value="true"/>  
+                <property name="jdbcInterceptors" value="org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer"/>  
+            </bean>  
+        </property>
+	</bean>
+	
+	<bean id="dynamicDataSource" class="com.maicard.core.ds.RoutingDataSource">
+        <property name="targetDataSources">  
+            <map key-type="java.lang.String">  
+                <entry value-ref="normalDataSource" key="normalDataSource"></entry>  
+                <entry value-ref="moneyDataSource" key="moneyDataSource"></entry>  
+            </map>  
+        </property>  
+        <property name="defaultTargetDataSource" ref="normalDataSource">  
+        </property>  
+    </bean> 
+	
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dynamicDataSource"/>
+	</bean>
+ 	 <tx:annotation-driven transaction-manager="transactionManager" />
+	 
+	 <bean id="sqlSession"  class="org.mybatis.spring.SqlSessionTemplate">
+        	<constructor-arg index="0" ref="sqlSessionFactory" />  
+    </bean>
+	
+</beans>

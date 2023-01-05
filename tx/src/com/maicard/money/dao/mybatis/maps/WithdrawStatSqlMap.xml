@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:59:49 CST 2013 -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.money.dao.mapper.WithdrawStatMapper">
+
+	<resultMap id="withdrawStatResult" type="com.maicard.money.entity.WithdrawStat">
+		<result property="id" column="id" />
+		<result property="totalCount" column="total_count" />
+		<result property="successCount" column="success_count" />
+		<result property="totalMoney" column="total_money" />
+		<result property="successMoney" column="success_money" />
+		<result property="withdrawTypeId" column="withdraw_type_id" />
+		<result property="withdrawMethodId" column="withdraw_method_id" />
+		<result property="statTime" column="stat_time" />
+		<result property="commission" column="commission" />
+		<result property="inviter" column="inviter" />
+		<result property="bizType" column="biz_type" />
+	</resultMap>
+	
+	<sql id="rowLimit">
+		<if test="limits &gt; 0">
+        LIMIT 
+            #{starts, jdbcType=BIGINT},
+      	 	#{limits, jdbcType=BIGINT}
+        </if>
+	</sql>
+	
+	<sql id="criteriaWhereClause">
+		<where>
+			<if test="queryBeginTime != null">
+				a.stat_time &gt;= DATE_FORMAT(#{queryBeginTime},"%Y%m%d%H")
+			</if>
+			<if test="queryEndTime != null">
+				AND a.stat_time &lt;= DATE_FORMAT(#{queryEndTime},"%Y%m%d%H")
+			</if>
+			<if test="withdrawMethodId > 0">
+				AND a.withdraw_method_id= #{withdrawMethodId}
+			</if>
+			<if test="withdrawTypeId > 0">
+				AND b.withdraw_type_id= #{withdrawTypeId}
+			</if>
+			<if test="bizType != null">
+				AND a.biz_type= #{bizType}
+			</if>
+			<if test="inviters !=null and inviters.length > 0">
+				AND a.inviter in (
+				<foreach item="item" collection="inviters" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+		</where>
+	</sql>
+
+	<sql id="groupClause">
+		<choose>
+			<when test="groupByInviter == true">
+				a.inviter,
+			</when>
+			<when test="groupByWithdrawMethodId == true">
+				a.withdraw_method_id,
+			</when>
+			<when test="groupByWithdrawTypeId == true">
+				b.withdraw_type_id,
+			</when>
+			<when test="groupByBizType == true">
+				a.biz_type,
+			</when>
+		</choose>
+		<choose>
+			<when test="groupByMonth == true">
+				SUBSTR(a.stat_time,1,6)
+			</when>
+			<when test="groupByDay == true">
+				SUBSTR(a.stat_time,1,8)
+			</when>
+			<otherwise>
+				a.stat_time
+			</otherwise>
+		</choose>
+		
+	</sql>
+	
+	<sql id="groupColumn">
+		<choose>
+			<when test="groupByInviter == true">
+				a.inviter,
+			</when>
+			<when test="groupByWithdrawMethodId == true">
+				a.withdraw_method_id,
+			</when>
+			<when test="groupByWithdrawTypeId == true">
+				b.withdraw_type_id,
+			</when>
+			<when test="groupByBizType == true">
+				a.biz_type,
+			</when>
+		</choose>
+		<choose>
+			<when test="groupByMonth == true">
+				SUBSTR(a.stat_time,1,6) stat_time
+			</when>
+			<when test="groupByDay == true">
+				SUBSTR(a.stat_time,1,8) stat_time
+			</when>
+			<otherwise>
+				a.stat_time
+			</otherwise>
+		</choose>
+		
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="withdrawStatResult">
+		SELECT
+			<include refid="groupColumn" />
+			,
+			sum(a.total_count) total_count,
+			sum(a.success_count) success_count,
+			sum(a.total_money) total_money,
+			sum(a.success_money) success_money,
+			sum(a.commission) commission
+		FROM
+			withdraw_stat AS a
+		LEFT JOIN withdraw_method as b ON a.withdraw_method_id = b.id
+		<include refid="criteriaWhereClause" />
+		GROUP BY <include refid="groupClause" />
+
+		ORDER BY a.stat_time DESC, a.inviter
+		<include refid="rowLimit" />
+		
+	</select>
+
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+		COUNT(*)
+		FROM
+		(SELECT
+		<choose>
+			<when test="groupByMonth == true">
+				SUBSTR(a.stat_time,1,6) stat_time,
+			</when>
+			<otherwise>
+				<choose>
+					<when test="groupByDay == true">
+						SUBSTR(a.stat_time,1,8) stat_time,
+					</when>
+					<otherwise>
+						a.stat_time,
+					</otherwise>
+				</choose>
+			</otherwise>
+		</choose>
+		<if test="groupByInviter == true">
+			a.inviter,
+		</if>
+		<if test="groupByWithdrawMethodId == true">
+			a.withdraw_method_id,
+		</if> 
+			b.withdraw_type_id,
+
+		sum(a.total_count) total_count
+
+		FROM
+			withdraw_stat AS a
+		LEFT JOIN withdraw_method AS b ON a.withdraw_method_id = b.id
+		<include refid="criteriaWhereClause" />
+		GROUP BY 
+		<include refid="groupClause" />
+		) AS withdraw_stat
+	</select>
+	 
+	
+	<update id="statistic" parameterType="map">
+		call withdraw_stat(#{statisticTimeBegin}, #{statisticTimeEnd})
+	</update>
+
+</mapper>

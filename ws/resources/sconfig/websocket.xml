@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:websocket="http://www.springframework.org/schema/websocket"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket.xsd
+	">
+	
+	
+	<websocket:handlers  allowed-origins="*" >
+		<websocket:mapping path="/ws" handler="eisWebSocketHandler" />
+		<websocket:handshake-interceptors>  
+			<ref bean="eisWebSocketHandShakeInterceptor" />
+		</websocket:handshake-interceptors>  
+    </websocket:handlers>
+	
+	<websocket:handlers  allowed-origins="*" >
+		<websocket:mapping path="/sockjs" handler="eisWebSocketHandler" />
+		<websocket:handshake-interceptors>  
+			<ref bean="eisWebSocketHandShakeInterceptor" />
+		</websocket:handshake-interceptors>  
+		<websocket:sockjs /> 
+    </websocket:handlers>
+	
+	<!-- 配置websocket消息的最大缓冲区长度 -->
+	<bean class="org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean">
+		<property name="maxTextMessageBufferSize" value="32768"/>
+		<property name="maxBinaryMessageBufferSize" value="32768"/>
+	</bean>
+</beans>

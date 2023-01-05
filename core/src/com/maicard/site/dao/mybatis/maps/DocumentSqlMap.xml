@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:58:58 
+	CST 2013 -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.site.dao.mapper.DocumentMapper">
+
+	<resultMap id="documentResult" type="com.maicard.site.entity.Document">
+		<result property="id" column="id" />
+		<result property="code" column="code" />
+		<result property="viewLevel" column="view_level" />
+		<result property="level" column="level" />
+		<result property="title" column="title" />
+		<result property="content" column="content" />
+		<result property="author" column="author" />
+		<result property="publisher" column="publisher" />
+		<result property="createTime" column="create_time" />
+		<result property="publishTime" column="publish_time" />
+		<result property="validTime" column="valid_time" />
+		<result property="displayType" column="display_type" />
+		<result property="displayWeight" column="display_weight" />
+		<result property="data" column="data" javaType="HashMap" jdbcType="VARCHAR"
+				typeHandler="com.maicard.th.TextHashMapTypeHandler"/>
+		<result property="type" column="type" />
+		<result property="flag" column="flag" />
+		<result property="language" column="language" />
+		<result property="alwaysOnTop" column="always_on_top" />
+		<result property="redirectTo" column="redirect_to" />
+		<result property="templateId" column="template_id" />
+		<result property="currentStatus" column="current_status" />
+		<result property="lastModified" column="last_modified" />
+		<result property="ownerId" column="owner_id" />
+	</resultMap>
+
+	<insert id="insert" parameterType="com.maicard.site.entity.Document"
+		useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO document
+		(
+		<if test="id>0">id,</if>
+		owner_id, code, view_level, `level`, title,
+		content, author, publisher, create_time, publish_time, valid_time,
+		display_type,   display_weight, `data`, type, flag, language,
+		  redirect_to, template_id, current_status)
+		VALUES
+		(
+		<if test="id>0">#{id},</if>
+		#{ownerId}, #{code}, #{viewLevel}, #{level},
+		#{title}, #{content}, #{author}, #{publisherId}, #{createTime},
+		#{publishTime}, #{validTime}, #{displayType}, #{displayWeight},
+		#{data, javaType=HashMap, jdbcType=VARCHAR , typeHandler=com.maicard.th.TextHashMapTypeHandler},
+		#{type}, #{flag}, #{language},   #{redirectTo},
+		#{templateId}, #{currentStatus})
+	</insert>
+
+	<update id="update" parameterType="com.maicard.site.entity.Document">
+		UPDATE
+		document
+		SET
+		code = #{code}, view_level = #{viewLevel}, `level` = #{level},
+		title = #{title},
+		content = #{content},
+		author = #{author},
+		publisher = #{publisherId},
+		publish_time = #{publishTime},
+		valid_time = #{validTime},
+		display_type = #{displayType},
+		display_weight = #{displayWeight},
+		`data` = #{data, javaType=HashMap, jdbcType=VARCHAR , typeHandler=com.maicard.th.TextHashMapTypeHandler},
+		type = #{type},
+		flag = #{flag},
+		language = #{language},
+		always_on_top = #{alwaysOnTop},
+		redirect_to = #{redirectTo},
+		template_id = #{templateId},
+		current_status = #{currentStatus},
+		owner_id = #{ownerId} WHERE
+		id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+		document
+		WHERE
+		id = #{id}
+	</delete>
+	<sql id="selectColumns"> a.id, a.code, a.view_level, a.level,
+		  a.title, a.content, a.author, a.publisher,
+		a.create_time, a.publish_time, a.valid_time, a.display_type,
+		a.display_weight, a.data, a.type, a.flag, a.language,
+		a.always_on_top, a.current_status, a.redirect_to, a.template_id,
+		a.last_modified, a.owner_id
+	</sql>
+	<select id="select" parameterType="long"
+		resultMap="documentResult">
+		SELECT
+			<include refid="selectColumns" />
+		FROM
+			document as a
+		WHERE
+		a.id = #{id}
+	</select>
+
+	<sql id="rowLimit">
+		<if test="limits &gt; 0">
+        LIMIT 
+            #{starts, jdbcType=BIGINT},
+      	 	#{limits, jdbcType=BIGINT}
+        </if>
+	</sql>
+	
+	<sql id="criteriaWhereClause">
+		<where>
+			<if test="@com.maicard.misc.Ognl@isNotEmpty(author)">
+				a.author=#{author}
+			</if>
+			<if test="id > 0">
+				AND a.id =#{id}
+			</if>
+
+			<if test="maxViewLevel > 0">
+				AND a.view_level &lt;=#{maxViewLevel}
+			</if>
+			<if test="@com.maicard.misc.Ognl@isNotEmpty(title)">
+				AND a.title like concat('%', #{title}, '%')
+			</if>
+
+
+			<if test="@com.maicard.misc.Ognl@isNotEmpty(publishTime)">
+				AND a.publish_time like concat(#{publishTime}, '%')
+			</if>
+			<if test="@com.maicard.misc.Ognl@isNotEmpty(publishTimeBegin)">
+				AND a.publish_time &gt;= #{publishTimeBegin}
+			</if>
+			<if test="publishTimeEnd != null">
+				AND a.publish_time &lt;= #{publishTimeEnd}
+			</if>
+			<if test="type > 0">
+				AND a.type=#{type}
+			</if>
+			<if test="code != null">
+				AND a.code=#{code}
+			</if>
+
+			<if test="codes != null and codes.length > 0">
+				AND a.code in
+				<foreach item="item" collection="codes" open="("
+					separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+
+			<if test="currentStatus != null">
+				AND a.current_status in
+				<foreach item="item" collection="currentStatus" open="("
+					separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="displayType != null">
+				AND a.display_type=#{displayType}
+			</if>
+			<if test="publisherId > 0">
+				AND a.publisher=#{publisherId}
+			</if>
+			<if test="nodePath != null and nodePath.length &gt; 0">
+				AND a.id
+				IN (SELECT b.udid FROM document_node_relation AS b INNER JOIN node AS c ON
+				b.`node_id`=c.`id` AND c.`path`=
+				<foreach collection="nodePath" item="item"
+					separator=") AND a.id IN (SELECT b.udid FROM document_node_relation AS b INNER JOIN node AS c ON b.`node_id`=c.`id` AND c.path="
+					close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="ownerId > 0">
+				AND a.owner_id = #{ownerId}
+			</if>
+			<if test="titleLike != null">
+				AND a.title LIKE CONCAT("%",#{titleLike},"%")
+			</if>
+			<if test="flag > 0">
+				AND a.flag = #{flag}
+			</if>
+		</where>
+	</sql>
+
+	<select id="listPk" parameterType="map" resultType="long">
+		SELECT
+		a.id
+		FROM
+		document as a
+		<if test="ignoreReader > 0">
+			left join user_read_log as f on a.id=f.id and f.uuid != #{ignoreReader}
+		</if>
+
+		<include refid="criteriaWhereClause" />
+		<if test="orderBy != null">
+			ORDER BY ${orderBy}
+		</if>
+		<if test="orderBy == null">
+			ORDER BY
+			a.always_on_top DESC , a.display_weight DESC, a.publish_time DESC,
+			a.id DESC
+		</if>
+		<include refid="rowLimit" />
+	</select>
+
+	<select id="list" parameterType="map" resultMap="documentResult">
+		SELECT 		
+			<include refid="selectColumns" />
+ 		FROM document as a
+		<include refid="criteriaWhereClause" />
+		<if test="orderBy != null"> ORDER BY ${orderBy}
+		</if>
+		<if test="orderBy == null">
+			ORDER BY
+			a.always_on_top DESC , a.display_weight DESC, a.publish_time DESC,
+			a.id DESC
+		</if>
+		<include refid="rowLimit" />
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+		COUNT(*)
+		FROM
+		document as a
+		<include refid="criteriaWhereClause" />
+	</select>
+</mapper>

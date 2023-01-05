@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.tx.dao.mapper.InvoiceMapper">
+	<resultMap id="invoiceResult" type="com.maicard.tx.entity.Invoice">
+		<result property="id" column="id" />
+		<result property="uuid" column="uuid" />
+		<result property="invoiceCode" column="invoice_code" />
+		<result property="title" column="title" />
+		<result property="content" column="content" />
+		<result property="memory" column="memory" />
+		<result property="currentStatus" column="current_status" />
+		<result property="taxPayerId" column="tax_payer_id" />
+		<result property="bankAccountId" column="bank_account_id" />
+		<result property="contactPhone" column="contact_phone" />
+		<result property="registeredAddress" column="registered_address" />
+		<result property="data" column="data" javaType="HashMap" jdbcType="VARCHAR" typeHandler="com.maicard.th.TextHashMapTypeHandler"/>
+		<result property="ownerId" column="owner_id"/>
+	</resultMap>
+
+	<insert id="insert" parameterType="com.maicard.tx.entity.Invoice" useGeneratedKeys="true"
+		keyProperty="id">
+		INSERT INTO invoice
+		(
+		<if test="id>0">id,</if>
+		owner_id, invoice_code,
+		title, content, memory, current_status, tax_payer_id,
+		bank_account_id, contact_phone, registered_address,
+		data,uuid)
+		VALUES
+		(
+		<if test="id>0">#{id},</if>
+	    #{ownerId},  #{invoiceCode}, 
+		#{title}, #{content}, #{memory},#{currentStatus},
+		#{taxPayerId}, #{bankAccountId}, #{contactPhone},
+		#{registeredAddress}, #{data, javaType=HashMap, jdbcType=VARCHAR , typeHandler=com.maicard.th.TextHashMapTypeHandler},#{uuid})
+	</insert>
+
+	<sql id="selectColumns">
+		id,
+		invoice_code,
+		title,
+		content,
+		current_status,
+		tax_payer_id,
+		bank_account_id,
+		contact_phone,
+		registered_address,
+		data,
+		uuid,
+		owner_id
+	</sql>
+
+	<update id="update" parameterType="com.maicard.tx.entity.Invoice">
+		UPDATE
+			invoice
+		SET
+			title = #{title},
+			invoice_code = #{invoiceCode}, 
+			content = #{content},
+			current_status = #{currentStatus},
+			tax_payer_id = #{taxPayerId}, 
+			bank_account_id = #{bankAccountId},
+			contact_phone = #{contactPhone},
+			registered_address = #{registeredAddress},
+			data = #{data,javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler},
+			uuid = #{uuid},
+			owner_id = #{ownerId}
+		WHERE
+			id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			invoice
+		WHERE
+			id = #{id}
+	</delete>
+
+	<select id="select" parameterType="long" resultMap="invoiceResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			invoice
+		WHERE
+			id = #{id}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+			<if test="uuid > 0">
+				uuid=#{uuid}
+			</if>
+			<if test="id > 0">
+				AND `id` = #{id}
+			</if>
+			<if test="invoiceCode != null">
+				AND invoice_code=#{invoiceCode}
+			</if>
+			<if test="title != null">
+				AND title=#{title}
+			</if>
+			<if test="currentStatus != null">
+				AND current_status in
+				<foreach item="item" collection="currentStatus" open="("
+					separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="ownerId > 0">
+				AND owner_id = #{ownerId}
+			</if>
+		</where>
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="invoiceResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+		invoice
+			<include refid="criteriaWhereClause" />
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			invoice
+		<include refid="criteriaWhereClause" />
+	</select>
+
+</mapper>

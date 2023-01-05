@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:53:58 CST 2013 -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.money.dao.mapper.PayMapper">
+
+	<resultMap id="payResult" type="com.maicard.money.entity.Pay">
+		<result property="payTypeId" column="pay_type_id" />
+		<result property="payMethodId" column="pay_method_id" />
+		<result property="payCardType" column="pay_card_type" />
+		<result property="name" column="name" />
+		<result property="description" column="description" />
+		<result property="payToAccount" column="pay_to_account" />
+		<result property="payToAccountType" column="pay_to_account_type" />
+		<result property="payFromAccount" column="pay_from_account" />
+		<result property="payFromAccountType" column="pay_from_account_type" />
+		<result property="parentPayOrderId" column="parent_pay_order_id" />
+		<result property="faceMoney" column="face_money" />
+		<result property="realMoney" column="real_money" />
+		<result property="commission" column="commission" />
+		<result property="balance" column="balance" />		
+		<result property="moneyTypeId" column="money_type_id" />
+		<result property="startTime" column="start_time" />
+		<result property="endTime" column="end_time" />
+		<result property="ttl" column="ttl" />
+		<result property="outOrderId" column="out_order_id" />
+		<result property="lockId" column="lock_id" />
+		<result property="rate" column="rate" />
+		<result property="data" column="data" javaType="HashMap" jdbcType="VARCHAR" typeHandler="com.maicard.th.TextHashMapTypeHandler"/>
+		<result property="currentStatus" column="current_status" />
+		<result property="extraStatus" column="extra_status" />
+		<result property="flag" column="flag" />
+		<result property="transactionId" column="transaction_id" />
+		<result property="refBuyTransactionId" column="ref_buy_transaction_id" />
+		<result property="inOrderId" column="in_order_id" />
+		<result property="notifyUrl" column="notify_url" />
+		<result property="returnUrl" column="return_url" />
+		<result property="inJumpUrl" column="in_jump_url" />
+		<result property="inNotifyUrl" column="in_notify_url" />
+		<result property="currency" column="currency"/>
+		<result property="ownerId" column="owner_id" />
+		<result property="inviter" column="inviter" />
+	</resultMap>
+	<sql id="rowLimit">
+		<if test="limits &gt; 0">
+        LIMIT 
+            #{starts, jdbcType=BIGINT},
+      	 	#{limits, jdbcType=BIGINT}
+        </if>
+	</sql>
+	
+	<sql id="selectColumns">
+		pay_type_id,
+		pay_method_id,
+		pay_card_type,
+		name,
+		description,
+		pay_to_account,
+		pay_to_account_type,
+		pay_from_account,
+		pay_from_account_type,
+		parent_pay_order_id,
+		face_money,
+		real_money,
+		commission,
+		balance,
+		money_type_id,
+		start_time,
+		end_time,
+		`ttl`,
+		out_order_id,
+		lock_id,
+		`data`,
+		current_status,
+		extra_status,
+		flag,
+		rate,
+		transaction_id,
+		ref_buy_transaction_id,
+		notify_url,
+		return_url,
+		in_order_id,
+		in_jump_url,
+		in_notify_url,
+		currency,
+		owner_id,
+		inviter
+	</sql>
+
+	<insert id="insert" parameterType="com.maicard.money.entity.Pay">
+		INSERT INTO pay
+		(owner_id,pay_type_id, pay_method_id, pay_card_type, name, description, pay_to_account, pay_to_account_type, pay_from_account, pay_from_account_type, parent_pay_order_id, face_money, real_money, commission, balance, money_type_id, start_time, end_time, `ttl`, out_order_id, lock_id,`data`, current_status, extra_status, flag, rate, transaction_id, ref_buy_transaction_id, notify_url, return_url, in_order_id, in_jump_url, in_notify_url, inviter,currency)
+		VALUES
+		(#{ownerId},
+		#{payTypeId}, #{payMethodId}, #{payCardType}, #{name}, #{description}, #{payToAccount}, #{payToAccountType}, #{payFromAccount}, #{payFromAccountType}, #{parentPayOrderId}, #{faceMoney}, #{realMoney}, #{commission}, #{balance}, #{moneyTypeId}, #{startTime}, #{endTime}, #{ttl}, #{outOrderId}, #{lockId},  #{data, javaType=HashMap, jdbcType=VARCHAR , typeHandler=com.maicard.th.TextHashMapTypeHandler}, #{currentStatus}, #{extraStatus}, #{flag}, #{rate}, #{transactionId}, #{refBuyTransactionId}, #{notifyUrl}, #{returnUrl}, #{inOrderId}, #{inJumpUrl}, #{inNotifyUrl}, #{inviter},#{currency})
+
+	</insert>
+
+	<update id="update" parameterType="com.maicard.money.entity.Pay">
+		UPDATE
+			pay
+		SET
+			pay_type_id = #{payTypeId},
+			pay_method_id = #{payMethodId},
+			pay_card_type = #{payCardType},
+			name = #{name},
+			description = #{description},
+			pay_to_account = #{payToAccount},
+			pay_to_account_type = #{payToAccountType}, pay_from_account = #{payFromAccount},
+			pay_from_account_type = #{payFromAccountType}, parent_pay_order_id = #{parentPayOrderId},
+			face_money = #{faceMoney},
+			real_money = #{realMoney},
+			commission = #{commission},
+			balance = #{balance},
+			money_type_id = #{moneyTypeId},
+			start_time = #{startTime},
+			end_time = #{endTime},
+			`ttl` = #{ttl},
+			out_order_id = #{outOrderId},
+			lock_id = #{lockId},
+			`data` = #{data, javaType=HashMap, jdbcType=VARCHAR , typeHandler=com.maicard.th.TextHashMapTypeHandler},
+			current_status = #{currentStatus},
+			extra_status = #{extraStatus},
+			flag = #{flag},
+			rate = #{rate},
+			ref_buy_transaction_id = #{refBuyTransactionId}, 
+			notify_url = #{notifyUrl}, 
+			return_url = #{returnUrl}, 
+			in_order_id = #{inOrderId}, 
+			in_jump_url = #{inJumpUrl}, 
+			in_notify_url = #{inNotifyUrl},
+			currency = #{currency},
+			owner_id = #{ownerId}, 
+			inviter = #{inviter}
+		WHERE
+			transaction_id = #{transactionId}
+		<if test="lockStatus>0">
+			AND current_status=#{lockStatus}
+		</if>
+
+	</update>
+
+	<delete id="delete" parameterType="com.maicard.money.entity.Pay">
+		DELETE FROM
+		pay
+		WHERE
+		transaction_id = #{transactionId}
+	</delete>
+
+	<select id="select" parameterType="com.maicard.money.entity.Pay" resultMap="payResult">
+		SELECT
+		<include refid="selectColumns" />
+		FROM
+		pay
+		WHERE
+		transaction_id = #{transactionId}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+			<if test="ownerId > 0">
+				owner_id = #{ownerId}
+			</if>
+			<if test="currentStatus != null and currentStatus.length &gt; 0">
+				AND current_status in
+				<foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="extraStatus != null and extraStatus.length &gt; 0">
+				AND extra_status in
+				<foreach item="item" collection="extraStatus" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="beforeLockStatus &gt; 0">
+				AND current_status = #{beforeLockStatus}
+			</if>
+			<if test="outOrderId != null"> 
+				AND out_order_id=#{outOrderId}
+			</if>
+			<if test="payMethodId > 0"> 
+				AND pay_method_id=#{payMethodId}
+			</if>
+			<if test="payTypeId > 0"> 
+				AND pay_type_id = #{payTypeId}
+			</if>
+			<if test="inOrderId != null">
+				AND in_order_id=#{inOrderId}
+			</if>
+			<if test="refBuyTransactionId != null">
+				AND ref_buy_transaction_id=#{refBuyTransactionId}
+			</if>
+			<choose>
+				<when test="fuzzyQuery != null and fuzzyQuery > 0 and transactionId != null">
+					AND transaction_id LIKE concat('%','${transactionId}', '%')
+				</when>
+				<otherwise>
+				<if test="transactionId != null">
+					AND transaction_id=#{transactionId}
+				</if>
+				</otherwise>
+			</choose>
+			 
+			
+			<if test="payCardType != null">
+				AND pay_card_type=#{payCardType}
+			</if>
+			<!-- <if test="payCardType == null">
+				AND( pay_card_type IS NULL OR pay_card_type = "")
+			</if> -->
+			<if test="moneyTypeId > 0">
+				AND money_type_id=#{moneyTypeId}
+			</if>
+			<if test="inviters !=null and inviters.length > 0">
+				AND inviter in (
+				<foreach item="item" collection="inviters" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="payFromAccount > 0">
+				AND pay_from_account=#{payFromAccount}
+			</if>
+			<if test="payFromAccountType > 0">
+				AND pay_from_account_type=#{payFromAccountType}
+			</if>
+			<if test="payToAccount > 0">
+				AND pay_to_account=#{payToAccount}
+			</if>
+			<if test="payToAccountType > 0">
+				AND pay_to_account_type=#{payToAccountType}
+			</if>
+			<if test="inNotifyUrl != null">
+				AND in_notify_url = #{inNotifyUrl}
+			</if>
+			<if test="inJumpUrl != null">
+				AND in_jump_url = #{inJumpUrl}
+			</if>
+			<if test="minFaceMoney != null and minFaceMoney != 0">
+				AND face_money &gt;=#{minFaceMoney}
+			</if>
+			<if test="maxFaceMoney != null and maxFaceMoney != 0">
+				AND face_money &lt;=#{maxFaceMoney}
+			</if>
+			<if test="minRealMoney != null and minRealMoney != 0">
+				AND real_money &gt;=#{minRealMoney}
+			</if>
+			<if test="maxRealMoney != null and maxRealMoney != 0">
+				AND real_money &lt;=#{maxRealMoney}
+			</if>
+			<if test="timeout &gt; 0">
+				AND (UNIX_TIMESTAMP(NOW())-UNIX_TIMESTAMP(start_time)) &gt; #{timeout}
+			</if>
+			<choose>
+				<when test="timeoutPolicy == 1">
+					AND (UNIX_TIMESTAMP(NOW())-UNIX_TIMESTAMP(start_time)) &lt;= ttl
+				</when>
+				<when test="timeoutPolicy == 2">
+					AND (UNIX_TIMESTAMP(NOW())-UNIX_TIMESTAMP(start_time)) &gt; ttl
+				</when>
+			
+			</choose>
+			<if test="startTimeBegin != null">
+				AND start_time &gt;= #{startTimeBegin}
+			</if>
+			<if test="startTimeEnd != null">
+				AND start_time &lt;= #{startTimeEnd}
+			</if>
+			<if test="endTimeBegin != null">
+				AND end_time IS NOT NULL AND end_time &gt;= #{endTimeBegin}
+			</if>
+			<if test="endTimeEnd != null">
+				AND end_time IS NOT NULL AND end_time &lt;= #{endTimeEnd}
+			</if>
+			<if test="startTime != null">
+				AND start_time &gt;= #{startTime}
+			</if>
+			<if test="endTime != null">
+				AND start_time &lt;= #{endTime}
+			</if>
+			<if test="description != null">
+				AND description = #{description}
+			</if>
+			<if test="currency != null">
+				AND currency = #{currency}
+			</if>
+		</where>
+	</sql>
+
+	
+	<select id="list" parameterType="map" resultMap="payResult">
+		SELECT
+		<include refid="selectColumns" />
+		FROM
+		pay
+		<include refid="criteriaWhereClause" />
+
+		<choose>
+			<when test="orderBy != null">
+				ORDER BY ${orderBy}
+			</when>
+			<otherwise>
+				ORDER BY start_time DESC
+			</otherwise>
+		</choose>
+
+
+		<include refid="rowLimit" />
+		
+	</select>
+	<select id="count" parameterType="map" resultType="int">
+
+			SELECT count(*) cnt FROM pay
+				<include refid="criteriaWhereClause" />
+
+	</select>
+	
+	<select id="lockByCriteria" parameterType="map" resultMap="payResult">
+		UPDATE 
+			pay 
+		SET 
+ 			lock_id=#{lockId}
+		WHERE
+		<include refid="criteriaWhereClause" />;
+		
+		SELECT
+			<include refid="selectColumns" />
+		FROM
+			pay 
+		WHERE lock_id=#{lockId}
+		<include refid="rowLimit" />
+		
+		
+		
+	</select>
+	
+	<select id="lockByPay" parameterType="com.maicard.money.entity.Pay" resultMap="payResult">
+		UPDATE 
+			pay 
+		SET 
+			pay_type_id = #{payTypeId},
+			pay_method_id = #{payMethodId},
+			pay_card_type = #{payCardType},
+			name = #{name},
+			description = #{description},
+			pay_to_account = #{payToAccount},
+			pay_to_account_type = #{payToAccountType}, pay_from_account = #{payFromAccount},
+			pay_from_account_type = #{payFromAccountType}, parent_pay_order_id = #{parentPayOrderId},
+			face_money = #{faceMoney},
+			real_money = #{realMoney},
+			commission = #{commission},
+			balance = #{balance},
+			money_type_id = #{moneyTypeId},
+			start_time = #{startTime},
+			end_time = #{endTime},
+			`ttl` = #{ttl},
+			out_order_id = #{outOrderId},
+			lock_id = #{lockId},
+			`data` = #{data, javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler},
+			current_status = #{currentStatus},
+			extra_status = #{extraStatus},
+			flag = #{flag},
+			rate = #{rate},
+			ref_buy_transaction_id = #{refBuyTransactionId}, 
+			notify_url = #{notifyUrl}, 
+			return_url = #{returnUrl}, 
+			in_order_id = #{inOrderId}, 
+			in_jump_url = #{inJumpUrl}, 
+			in_notify_url = #{inNotifyUrl}, 
+			owner_id = #{ownerId}, 
+			inviter = #{inviter}
+		WHERE
+			transaction_id = #{transactionId}
+			AND
+			lock_id IS NULL;
+		
+		SELECT
+			<include refid="selectColumns" />
+		FROM
+			pay 
+		WHERE 
+			transaction_id = #{transactionId}
+			AND
+			lock_id=#{lockId}
+	</select>
+	
+</mapper>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:51:33 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.flow.sql.WorkflowInstance">
+
+	<resultMap id="workflowInstanceResult" type="WorkflowInstance">
+		<result property="id" column="id"/>
+		<result property="workflowId" column="workflow_id"/>
+		<result property="currentStep" column="current_step"/>
+		<result property="targetObjectType" column="target_object_type"/>
+		<result property="objectId" column="object_id"/>
+		<result property="startTime" column="start_time"/>
+		<result property="endTime" column="end_time"/>
+		<result property="currentStatus" column="current_status"/>
+		<result property="ownerId" column="owner_id"/>
+	</resultMap>
+
+	<sql id="selectColumns">
+			id,
+			workflow_id,
+			current_step,
+			target_object_type,
+			object_id,
+			start_time,
+			end_time,
+			current_status,
+			owner_id
+	</sql>
+
+	<insert id="insert" parameterType="WorkflowInstance"  useGeneratedKeys="true"  keyProperty="id">
+		INSERT INTO workflow_instance
+			(<if test="id>0">id,</if>owner_id, workflow_id, current_step, target_object_type, object_id, start_time, end_time, current_status)
+		VALUES
+			(<if test="id>0">#{id},</if> #{ownerId}, #{workflowId}, #{currentStep}, #{targetObjectType}, #{objectId}, #{startTime}, #{endTime}, #{currentStatus})
+	</insert>
+
+	<update id="update" parameterType="WorkflowInstance">
+		UPDATE
+			workflow_instance
+		SET
+			workflow_id = #{workflowId},
+			current_step = #{currentStep},
+			target_object_type = #{targetObjectType},
+			object_id = #{objectId},
+			start_time = #{startTime},
+			end_time = #{endTime},
+			current_status = #{currentStatus},
+			owner_id = #{ownerId}
+		WHERE
+			id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			workflow_instance
+		WHERE
+			id = #{id}
+	</delete>
+	
+	<select id="select" parameterType="long" resultMap="workflowInstanceResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			workflow_instance
+		WHERE
+			id = #{id}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+			<if test="targetObjectType != null">
+				 target_object_type=#{targetObjectType}
+			</if>
+			<if test="objectId > 0">
+				AND object_id=#{objectId}
+			</if>
+			<if test="currentStatus != null">
+				AND current_status in 
+				<foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+	        			#{item}
+	  			</foreach>				
+	  		</if>
+	  		<if test="ownerId > 0">
+				AND owner_id = #{ownerId}
+			</if>
+		</where>
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="workflowInstanceResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			workflow_instance
+		<include refid="criteriaWhereClause"/>
+		ORDER BY
+			id ASC
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			workflow_instance
+		<include refid="criteriaWhereClause"/>
+	</select>
+
+</mapper>

@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:54:02 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.money.dao.mapper.ShareConfigMapper">
+
+	<resultMap id="shareConfigResult" type="com.maicard.money.entity.ShareConfig">
+		<result property="id" column="id"/>
+		<result property="shareConfigCode" column="share_config_code"/>
+		<result property="shareConfigName" column="share_config_name"/>
+		<result property="objectType" column="object_type"/>
+		<result property="objectId" column="object_id"/>
+		<result property="sharePercent" column="share_percent"/>
+		<result property="shareUuid" column="share_uuid"/>
+		<result property="currentStatus" column="current_status"/>		
+		<result property="beginMoney" column="begin_money"/>
+		<result property="endMoney" column="end_money"/>
+		<result property="shareType" column="share_type"/>		
+		<result property="moneyDirect" column="money_direct"/>
+		<result property="chargeType" column="charge_type"/>
+		<result property="payCardType" column="pay_card_type"/>
+		<result property="ttl" column="ttl"/>
+		<result property="maxRetry" column="max_retry"/>
+		<result property="data" column="data" javaType="HashMap" jdbcType="VARCHAR" typeHandler="com.maicard.th.TextHashMapTypeHandler"/>
+		<result property="weight" column="weight"/>
+		<result property="defaultConfig" column="default_config"/>
+		<result property="enterTimePolicy" column="enter_time_policy"/>
+		<result property="ownerId" column="owner_id"/>
+
+		<result column="clear_type" property="clearType" jdbcType="VARCHAR"/>
+		<result column="clear_way" property="clearWay" jdbcType="VARCHAR"/>
+		<result column="offset_clear_times" property="offsetClearTimes" jdbcType="INTEGER"/>
+		<result column="statement_account" property="statementAccount" jdbcType="VARCHAR"/>
+		
+		<result column="version" property="version" jdbcType="BIGINT"/>
+		
+
+	</resultMap>
+	
+	<sql id="selectColumns">
+			id,
+			share_config_code,
+			share_config_name,
+			object_type,
+			object_id,
+			share_percent,
+			share_uuid,
+			current_status,
+			begin_money,
+			end_money,
+			share_type,
+			money_direct,
+			charge_type,
+			pay_card_type,
+			ttl,
+			max_retry,
+			data,
+			weight,
+			default_config,
+			enter_time_policy,
+			owner_id,
+			clear_type,
+			clear_way,
+			offset_clear_times,
+			statement_account,
+			`version`
+	</sql>
+
+	<insert id="insert" parameterType="com.maicard.money.entity.ShareConfig" useGeneratedKeys="true"  keyProperty="id">
+		INSERT INTO share_config
+			(<if test="id>0">id,</if> owner_id, share_config_code, share_config_name, object_type, object_id, share_percent,share_uuid,
+			current_status,begin_money,end_money,share_type, money_direct, charge_type, pay_card_type, ttl, max_retry, data, weight, default_config,
+			enter_time_policy,clear_type,clear_way,offset_clear_times,statement_account, `version`)
+		VALUES
+			(<if test="id>0">#{id},</if> #{ownerId}, #{shareConfigCode}, #{shareConfigName}, #{objectType},  #{objectId}, #{sharePercent},
+			#{shareUuid}, #{currentStatus} , #{beginMoney}, #{endMoney}, #{shareType}, #{moneyDirect}, #{chargeType}, #{payCardType}, #{ttl}, #{maxRetry},
+			#{data, javaType=HashMap, jdbcType=VARCHAR , typeHandler=com.maicard.th.TextHashMapTypeHandler}, #{weight}, #{defaultConfig}, #{enterTimePolicy}, #{clearType}, #{clearWay}, #{offsetClearTimes}, #{statementAccount}, #{version})
+	</insert>
+
+	<update id="update" parameterType="com.maicard.money.entity.ShareConfig">
+		UPDATE
+			share_config
+		SET
+			share_config_code = #{shareConfigCode},
+			share_config_name = #{shareConfigName},
+			object_type = #{objectType},
+			object_id = #{objectId},
+			share_percent = #{sharePercent},
+			share_uuid = #{shareUuid},
+			current_status = #{currentStatus},
+			begin_money = #{beginMoney},
+			end_money = #{endMoney},
+			share_type = #{shareType},
+			pay_card_type = #{payCardType},
+			money_direct = #{moneyDirect},		
+			ttl = #{ttl},
+			max_retry = #{maxRetry},
+			data = #{data, javaType=HashMap, jdbcType=VARCHAR , typeHandler=com.maicard.th.TextHashMapTypeHandler},
+			weight = #{weight},
+			default_config = #{defaultConfig},
+			enter_time_policy = #{enterTimePolicy},
+			owner_id = #{ownerId},
+			clear_type = #{clearType},
+			clear_way = #{clearWay},
+			statement_account = #{statementAccount},
+			offset_clear_times = #{offsetClearTimes},
+			`version` = #{version}
+		WHERE
+			id = #{id}
+			AND
+			`version` &lt; #{version}
+	</update>
+	
+	<update id="updateNoNull" parameterType="com.maicard.money.entity.ShareConfig">
+		UPDATE
+			share_config
+		<set>
+		    <if test="shareConfigCode != null">
+				share_config_code = #{shareConfigCode},
+			</if>
+			<if test="shareConfigName != null">
+				share_config_name = #{shareConfigName},
+			</if>
+			<if test="objectType != null">
+				object_type = #{objectType},
+			</if>
+			<if test="objectId > 0">
+				object_id = #{objectId},
+			</if>
+			<if test="sharePercent > 0">
+				share_percent = #{sharePercent},
+			</if>
+			<if test="shareUuid > 0">
+				share_uuid = #{shareUuid},
+			</if>
+			<if test="currentStatus > 0">
+				current_status = #{currentStatus},
+			</if>
+			<if test="beginMoney > 0">
+				begin_money = #{beginMoney},
+			</if>
+			<if test="endMoney > 0">
+				end_money = #{endMoney},
+			</if>
+			<if test="shareType != null">
+			  share_type = #{shareType},
+			</if>
+			<if test="payCardType != null">
+			  pay_card_type = #{payCardType},
+			</if>
+			
+			<if test="chargeType != null">
+			  charge_type = #{chargeType},
+			</if>
+			<if test="moneyDirect != null">
+				money_direct = #{moneyDirect},	
+			</if>
+			<if test="ttl > 0">
+				ttl = #{ttl},
+			</if>
+			<if test="maxRetry > 0">
+				max_retry = #{maxRetry},
+			</if>
+			<if test="data != null">
+				data = #{data, javaType=HashMap, jdbcType=VARCHAR},
+			</if>
+			<if test="weight > 0">
+				weight = #{weight},
+			</if>
+			<if test="defaultConfig > 0">
+				default_config = #{defaultConfig},
+			</if>
+			<if test="enterTimePolicy != null">
+				enter_time_policy = #{enterTimePolicy},
+			</if>
+			<if test="ownerId > 0">
+			    owner_id = #{ownerId},
+			</if>
+			<if test="clearType != null">
+				clear_type = #{clearType},
+			</if>
+			<if test="clearWay != null">
+				clear_way = #{clearWay},
+			</if>
+			<if test="offsetClearTimes != null">
+				offset_clear_times = #{offsetClearTimes},
+			</if>
+			`version` = #{version}
+		</set>	
+		WHERE
+			id = #{id}
+			AND
+			`version` &lt; #{version}
+			
+	</update>
+	
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			share_config
+		WHERE
+			id = #{id}
+	</delete>
+	
+	<select id="deleteByUuid" parameterType="long">
+		DELETE FROM
+			share_config
+		WHERE
+			share_uuid = #{shareUuid}
+			
+	</select>
+	
+	<select id="select" parameterType="long" resultMap="shareConfigResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			share_config
+		WHERE
+			id = #{id}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+			<if test="currentStatus != null">
+				current_status in 
+				<foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+	        			#{item}
+	  			</foreach>				
+	  		</if>
+	  		<if test="clearTypes != null and clearTypes.length > 0">
+				AND clear_type in 
+				<foreach item="item" collection="clearTypes" open="(" separator="," close=")">
+	        			#{item}
+	  			</foreach>				
+	  		</if>
+	  		<if test="objectType != null">
+				AND object_type=#{objectType}
+			</if>
+			<if test="moneyDirect != null">
+				AND money_direct=#{moneyDirect}
+			</if>
+			<if test="shareUuid > 0">
+				AND share_uuid=#{shareUuid}
+			</if>
+			<if test="chargeType != null and chargeType != 'both'">
+			  AND charge_type = #{chargeType}
+			</if>
+			<if test="payCardType != null">
+				AND pay_card_type=#{payCardType}
+			</if>
+			<if test="objectId > 0">
+				AND object_id=#{objectId}
+			</if>
+			<if test="ttl > 0">
+				AND ttl=#{ttl}
+			</if>
+			<if test="defaultConfig == true">
+				AND default_config = #{defaultConfig}
+			</if>
+			<if test="inviters !=null and inviters.length > 0">
+				AND share_uuid in (
+				<foreach item="item" collection="inviters"
+					separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="ownerId > 0">
+				AND owner_id = #{ownerId}
+			</if>
+			<if test="id > 0">
+				AND `id` = #{id}
+			</if>
+		</where>
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="shareConfigResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			share_config
+		<include refid="criteriaWhereClause"/>
+		<if test="orderBy != null">
+		    ORDER BY ${orderBy}		    
+		</if>
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			share_config
+			
+		<include refid="criteriaWhereClause"/>
+	</select>
+
+</mapper>

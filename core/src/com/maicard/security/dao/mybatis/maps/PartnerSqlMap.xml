@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:57:32 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.security.dao.mapper.PartnerMapper">
+
+    <resultMap id="PartnerResult" type="com.maicard.security.entity.User">
+        <result property="uuid" column="uuid" javaType="long" jdbcType="BIGINT"/>
+        <result property="userTypeId" column="user_type_id"/>
+        <result property="userExtraTypeId" column="user_extra_type_id"/>
+        <result property="roles" column="roles" javaType="List" jdbcType="VARCHAR"
+                typeHandler="com.maicard.th.JsonArrayTypeHandler"/>
+        <result property="username" column="username"/>
+        <result property="userPassword" column="user_password"/>
+        <result property="authType" column="auth_type"/>
+        <result property="authKey" column="auth_key"/>
+        <result property="createTime" column="create_time"/>
+        <result property="lastLoginTimestamp" column="last_login_timestamp"/>
+        <result property="lastLoginIp" column="last_login_ip"/>
+        <result property="nickName" column="nick_name"/>
+        <result property="parentUuid" column="parent_uuid"/>
+        <result property="headUuid" column="head_uuid"/>
+        <result property="inviter" column="inviter"/>
+        <result property="level" column="level"/>
+        <result property="currentStatus" column="current_status"/>
+        <result property="extraStatus" column="extra_status"/>
+        <result property="avatar" column="avatar"/>
+        <result property="memory" column="memory"/>
+        <result property="deleted" column="deleted"/>
+        <result property="data" column="data" javaType="HashMap" jdbcType="VARCHAR"
+                typeHandler="com.maicard.th.TextHashMapTypeHandler"/>
+        <result property="ownerId" column="owner_id"/>
+
+        <!-- <result property="userTypeName" column="user_type_name"/>
+        <result property="userExtraTypeName" column="user_extra_type_name"/> -->
+
+    </resultMap>
+
+    <sql id="selectColumns">
+        a.uuid,
+        a.user_type_id,
+        a.user_extra_type_id,
+        a.roles,
+        a.username,
+        a.user_password,
+        a.auth_type,
+        a.auth_key,
+        a.memory,
+        a.deleted,
+        a.data,
+        a.create_time,
+        a.last_login_timestamp,
+        a.last_login_ip,
+        a.nick_name,
+        a.parent_uuid,
+        a.head_uuid,
+        a.inviter,
+        a.level,
+        a.current_status,
+        a.extra_status,
+        a.avatar,
+        a.owner_id
+    </sql>
+
+    <insert id="insert" parameterType="com.maicard.security.entity.User" useGeneratedKeys="true" keyProperty="uuid">
+        INSERT INTO partner
+        (<if test="uuid>0">uuid,</if> owner_id, username, user_password, user_type_id, user_extra_type_id, roles,
+        auth_type, auth_key, memory, `data`, current_status, extra_status, avatar, create_time, last_login_ip,
+        nick_name, parent_uuid, head_uuid, inviter, level)
+        VALUES
+        (<if test="uuid>0">#{uuid},</if> #{ownerId}, #{username}, #{userPassword}, #{userTypeId}, #{userExtraTypeId},
+        roles = #{roles, javaType=List, jdbcType=VARCHAR, typeHandler=com.maicard.th.JsonArrayTypeHandler}, #{authType},
+        #{authKey}, #{memory},
+        #{data, javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler},
+        #{currentStatus}, #{extraStatus}, #{avatar}, #{createTime}, #{lastLoginIp}, #{nickName}, #{parentUuid},
+        #{headUuid}, #{inviter}, #{level})
+    </insert>
+
+    <update id="update" parameterType="com.maicard.security.entity.User">
+        UPDATE
+        partner
+        <set>
+            <if test="userTypeId > 0">
+                user_type_id = #{userTypeId},
+            </if>
+            <if test="userExtraTypeId > 0">
+                user_extra_type_id = #{userExtraTypeId},
+            </if>
+            <if test="username != null">
+                username = #{username},
+            </if>
+            <if test="userPassword != null">
+                user_password = #{userPassword},
+            </if>
+            <if test="authType > 0">
+                auth_type = #{authType},
+            </if>
+            <if test="authKey != null">
+                auth_key = #{authKey},
+            </if>
+            <if test="data != null and data.size() > 0">
+                data = #{data,javaType=HashMap, jdbcType=VARCHAR,typeHandler=com.maicard.th.TextHashMapTypeHandler},
+            </if>
+            <if test="currentStatus > 0">
+                current_status = #{currentStatus},
+            </if>
+            <if test="extraStatus > 0">
+                extra_status = #{extraStatus},
+            </if>
+            avatar = #{avatar},
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="lastLoginIp != null">
+                last_login_ip = #{lastLoginIp},
+            </if>
+            <if test="nickName != null">
+                nick_name = #{nickName},
+            </if>
+            <if test="inviter > 0">
+                inviter = #{inviter},
+            </if>
+            <if test="headUuid > 0">
+                head_uuid = #{headUuid},
+            </if>
+            <if test="level > 0">
+                level = level,
+            </if>
+            <if test="ownerId > 0">
+                owner_id = #{ownerId},
+            </if>
+            roles = #{roles, javaType=List, jdbcType=VARCHAR, typeHandler=com.maicard.th.JsonArrayTypeHandler}
+        </set>
+        <where>
+            uuid = #{uuid}
+        </where>
+    </update>
+
+
+    <delete id="delete" parameterType="long">
+        UPDATE
+            partner
+        SET
+            deleted = 1,
+            username = CONCAT(username, "_", uuid, "_", DATE_FORMAT(CURRENT_TIMESTAMP,"%y%m%d%H%i%s"))
+        WHERE
+            uuid = #{uuid}
+            AND
+            deleted = 0
+    </delete>
+
+    <select id="select" parameterType="long" resultMap="PartnerResult">
+        SELECT
+        <include refid="selectColumns"/>
+        FROM
+        partner as
+        a <!-- left join user_type as b on a.user_type_id = b.user_type_id and a.user_extra_type_id=b.user_extra_type_id -->
+        WHERE
+        a.uuid = #{uuid}
+    </select>
+
+    <sql id="rowLimit">
+        <if test="limits &gt; 0">
+            LIMIT
+            #{starts, jdbcType=BIGINT},
+            #{limits, jdbcType=BIGINT}
+        </if>
+    </sql>
+
+    <sql id="criteriaWhereClause">
+        <where>
+            <if test="@com.maicard.misc.Ognl@isNotZero(uuid)">
+                a.uuid = #{uuid}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotZero(id)">
+                a.uuid = #{id}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(createTimeBegin)">
+                AND a.create_time &gt;= #{createTimeBegin}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(createTimeEnd)">
+                AND a.create_time &lt;= #{createTimeEnd}
+            </if>
+
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(nickName)">
+                AND a.nick_name = #{nickName}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(fuzzyUuid)">
+                AND a.uuid LIKE concat('%', '${fuzzyUuid}', '%')
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(fuzzyName)">
+                AND (
+                a.nick_name LIKE concat('%', '${fuzzyName}', '%')
+                OR
+                a.username LIKE concat('%', '${fuzzyName}', '%')
+                )
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(roles)">
+                AND JSON_CONTAINS(a.roles, JSON_ARRAY(#{roles}))
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(authKey)">
+                AND a.auth_key = #{authKey}
+            </if>
+
+            <if test="@com.maicard.misc.Ognl@isNotZero(userTypeId)">
+                AND a.user_type_id = #{userTypeId}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotZero(userExtraTypeId)">
+                AND a.user_extra_type_id = #{userExtraTypeId}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isValueArray(userTypeIds)">
+                AND a.user_type_id in
+                <foreach item="item" collection="userTypeIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="@com.maicard.misc.Ognl@isValueArray(userExtraTypeIds)">
+                AND a.user_extra_type_id in
+                <foreach item="item" collection="userExtraTypeIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="@com.maicard.misc.Ognl@isValueArray(currentStatus)">
+                AND a.current_status in
+                <foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="@com.maicard.misc.Ognl@isValueArray(extraStatus)">
+                AND a.extra_status in
+                <foreach item="item" collection="extraStatus" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(username)">
+                AND a.username = #{username}
+            </if>
+
+            <if test="@com.maicard.misc.Ognl@isNotZero(level)">
+                AND a.level = #{level}
+            </if>
+            <if test="userPassword != null">
+                AND a.user_password = #{userPassword}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isValueArray(inviters)">
+                AND a.uuid in
+                <foreach item="item" collection="inviters" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotZero(headUuid)">
+                AND a.head_uuid = #{headUuid}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotZero(ownerId)">
+                AND a.owner_id = #{ownerId}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(merchant) and merchant == true">
+                AND a.user_extra_type_id &gt; 0
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotZero(parentUuid)">
+                AND a.parent_uuid in (#{parentUuid}
+                <if test="@com.maicard.misc.Ognl@isValueArray(subUserList)">
+                    <foreach item="item" collection="subUserList" open="," separator="," close="">
+                        #{item.uuid}
+                    </foreach>
+                </if>
+                )
+            </if>
+
+            <if test="@com.maicard.misc.Ognl@isValueArray(ids)">
+                AND a.uuid in (
+                <foreach item="item" collection="ids" separator="," close="">
+                    #{item}
+                </foreach>
+
+                )
+            </if>
+            <if test="@com.maicard.misc.Ognl@isValueArray(uuids)">
+                AND a.uuid in (
+                <foreach item="item" collection="uuids" separator="," close="">
+                    #{item}
+                </foreach>
+
+                )
+            </if>
+            <choose>
+                <when test="withDeleted > 0">AND deleted > 0</when>
+                <otherwise>AND deleted = 0</otherwise>
+            </choose>
+        </where>
+    </sql>
+
+    <select id="list" parameterType="map" resultMap="PartnerResult">
+        SELECT
+        <include refid="selectColumns"/>
+        FROM
+        partner as a
+
+        <include refid="criteriaWhereClause"/>
+        <if test="orderBy != null">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="orderBy == null">
+            ORDER BY
+            a.create_time DESC, a.uuid DESC
+        </if>
+        <include refid="rowLimit"/>
+    </select>
+
+    <select id="listPk" parameterType="map" resultType="long">
+        SELECT
+        a.uuid
+
+        FROM
+        partner as a
+
+        <include refid="criteriaWhereClause"/>
+        <if test="orderBy != null">
+            ORDER BY ${orderBy}
+        </if>
+        <include refid="rowLimit"/>
+    </select>
+
+    <select id="count" parameterType="map" resultType="int">
+        SELECT
+        COUNT(*)
+        FROM
+        partner as a
+        <include refid="criteriaWhereClause"/>
+    </select>
+
+
+    <select id="listBelowUser" parameterType="long" resultType="String">
+        CALL list_below_user(#{uid});
+    </select>
+</mapper>

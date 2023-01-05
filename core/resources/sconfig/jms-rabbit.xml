@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:rabbit="http://www.springframework.org/schema/rabbit"	
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit.xsd">
+	<!-- <bean id="jsonMessageConverter" class="org.springframework.amqp.support.converter.JsonMessageConverter" /> -->
+	<bean id="simpleMessageConverter" class="org.springframework.amqp.support.converter.SerializerMessageConverter" />
+
+	<rabbit:connection-factory id="connectionFactory" host="${amqpHost}" port="${amqpPort}" username="${amqpUsername}" password="${amqpPassword}" publisher-confirms="false"/>
+	<rabbit:template id="rabbitTemplate" connection-factory="connectionFactory" exchange="${systemCode}-fanout-exchange" message-converter="simpleMessageConverter">
+	</rabbit:template>
+	<rabbit:admin connection-factory="connectionFactory" />
+	<rabbit:queue id="system"  name="${systemCode}-${systemServerId}" durable="true" />
+
+	<rabbit:fanout-exchange name="${systemCode}-fanout-exchange" durable="true">
+		<rabbit:bindings>
+			<rabbit:binding queue="system" />
+		</rabbit:bindings>
+	</rabbit:fanout-exchange>
+
+
+	<rabbit:listener-container	connection-factory="connectionFactory" acknowledge="auto"   concurrency="${amqpConcurrency}" prefetch="500">
+		<rabbit:listener ref="messageService" queue-names="${systemCode}-${systemServerId}" />
+	</rabbit:listener-container>
+
+</beans>

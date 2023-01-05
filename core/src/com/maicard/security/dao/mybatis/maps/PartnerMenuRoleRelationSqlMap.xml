@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:57:38 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.security.dao.mapper.PartnerMenuRoleRelationMapper">
+
+	<resultMap id="partnerMenuRoleRelationResult" type="com.maicard.security.entity.MenuRoleRelation">
+		<result property="id" column="id"/>
+		<result property="roleId" column="role_id"/>
+		<result property="menuId" column="menu_id"/>
+	</resultMap>
+
+	<insert id="insert" parameterType="com.maicard.security.entity.MenuRoleRelation"  useGeneratedKeys="true"  keyProperty="id">
+		INSERT INTO partner_menu_role_relation
+			(<if test="id>0">id,</if>role_id, menu_id)
+		VALUES
+			(<if test="id>0">#{id},</if>#{roleId}, #{menuId})
+	</insert>
+	<update id="update" parameterType="com.maicard.security.entity.MenuRoleRelation">
+		UPDATE
+			partner_menu_role_relation
+		SET
+			role_id = #{roleId},
+			menu_id = #{menuId}		
+		WHERE
+			id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			partner_menu_role_relation
+		WHERE
+			id = #{id}
+	</delete>
+	
+	<delete id="deleteByGroupId" parameterType="long">
+		DELETE FROM
+			partner_menu_role_relation
+		WHERE
+			role_id = #{roleId}
+	</delete>
+	
+	<select id="select" parameterType="long" resultMap="partnerMenuRoleRelationResult">
+		SELECT
+			id,
+			role_id,
+			menu_id
+		FROM
+			partner_menu_role_relation
+		WHERE
+			id = #{id}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+		1=1
+		<if test="@com.maicard.misc.Ognl@isValueArray(roleIds)">
+			AND		role_id in 
+				<foreach item="item" collection="roleIds" open="(" separator="," close=")">
+	        			#{item}
+	  			</foreach>		
+	 	</if> 
+		<if test="@com.maicard.misc.Ognl@isNotZero(roleId)">
+			and	role_id = #{roleId}
+		</if>
+		<if test="@com.maicard.misc.Ognl@isNotZero(menuId)">
+			and menu_id= #{menuId}
+		</if>
+		
+		</where>
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="partnerMenuRoleRelationResult">
+		SELECT
+			id,
+			role_id,
+			menu_id
+		FROM
+			partner_menu_role_relation
+		<include refid="criteriaWhereClause"/>
+		ORDER BY
+			id ASC
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			partner_menu_role_relation
+		<include refid="criteriaWhereClause"/>
+	</select>
+	
+	<delete id="deleteByCriteria" parameterType="map">
+		DELETE FROM
+			partner_menu_role_relation
+		<include refid="criteriaWhereClause"/>
+
+	</delete>
+
+</mapper>

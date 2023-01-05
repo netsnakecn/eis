@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:task="http://www.springframework.org/schema/task" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		    http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+			http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd 
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+	">
+	
+	<!-- 注册日期格式转换等转换器 -->
+	<bean id="conversionService"  class="org.springframework.context.support.ConversionServiceFactoryBean">
+	    	<property name="converters">
+	    	<list>
+	    		<bean class="com.maicard.misc.DefaultDateFormatConverter" />
+	    	</list>
+	    	</property>
+	 </bean>    
+	 
+	<mvc:annotation-driven  conversion-service="conversionService">
+          <mvc:message-converters>
+			 <!-- <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+				  <property name="supportedMediaTypes">
+					  <list>
+						  <value>application/json;charset=UTF-8</value>
+					  </list>
+				  </property>
+			  </bean> -->
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>application/json;charset=UTF-8</value>
+                    </list>
+                </property>
+            </bean>
+
+        </mvc:message-converters>
+		<mvc:async-support default-timeout="3000"/>
+    </mvc:annotation-driven>
+	
+	<!-- Property configurer -->
+	<bean id="propertyConfigurer" class="com.maicard.misc.EncryptPropertyPlaceholderConfigurer" p:locations="classpath:server-special.properties" p:fileEncoding="utf-8"/>
+			
+	<bean id="performanceMonitorListener" class="org.springframework.web.context.ContextLoaderListener"/>
+
+	<!-- Message source，用于读取不同语言的说明，目前用于对一些数据字段进行说明 -->	
+	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource" 
+		p:defaultEncoding="UTF-8" p:basenames="classpath:pconfig/message" 
+		p:cacheSeconds="3600" p:useCodeAsDefaultMessage="true"
+	/>
+
+	<!-- View resolvers -->	
+	<bean id="beanNameViewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver">
+		<property name="order" value="1"/>
+	</bean>
+	
+	<!-- Multipart resolver -->
+	
+	<bean id="uploadTempDir" class="org.springframework.core.io.FileSystemResource">
+		<constructor-arg>
+			<value>temp</value>
+		</constructor-arg>
+	</bean>
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxInMemorySize" value="2048" />
+		<property name="maxUploadSize" value="10000000000" />
+        <property name="defaultEncoding" value="utf-8" />
+		<property name="uploadTempDir" ref="uploadTempDir"/>
+	</bean>
+        
+	
+	<!-- proxy-target-class="true" is a very important config -->
+	<aop:aspectj-autoproxy proxy-target-class="true"/> 
+    	
+<!--
+    <task:annotation-driven executor="eisDefaultThreadPool" />
+-->
+
+
+
+    
+    
+        
+	
+</beans>

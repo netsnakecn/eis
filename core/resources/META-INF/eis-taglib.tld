@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee web-jsptaglibrary_2_3.xsd" version="2.3">
+	<description>EIS tag lib</description>
+	<display-name>EIS Tag Lib</display-name>
+	<tlib-version>1.0</tlib-version>
+	<short-name>eis</short-name>
+	<uri>http://www.maicard.com/taglib/eis.tld
+	</uri>
+	<!-- <tag>
+		<name>media</name>
+		<tag-class>com.maicard.taglib.MediaTag</tag-class>
+		<body-content>JSP</body-content>
+	</tag> 
+
+	<tag>
+		<name>out</name>
+		<tag-class>com.maicard.taglib.ExtraDataOutputTag</tag-class>
+		<body-content>JSP</body-content>
+		<attribute>
+			<name>targetObject</name>
+			<required>true</required>
+		</attribute>
+	</tag>
+-->
+	<tag>
+		<name>json</name>
+		<tag-class>com.maicard.taglib.JsonOutputTag</tag-class>
+		<body-content>JSP</body-content>
+		<attribute>
+			<name>noDefaultValueOutput</name>
+			<required>false</required>
+		</attribute>
+	</tag>
+</taglib>

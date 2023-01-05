@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.money.dao.mapper.BankAccountMapper">
+
+	<resultMap id="bankAccountResult" type="com.maicard.money.entity.BankAccount">
+		<result property="id" column="id" />
+		<result property="serverId" column="server_id" />
+		<result property="useType" column="use_type" />
+		<result property="withdrawMethodId" column="withdraw_method_id" />
+		<result property="balance" column="balance" />
+		<result property="parentUuid" column="parent_uuid" />
+		<result property="referUuid" column="refer_uuid" />
+		<result property="uuid" column="uuid" />
+		<result property="lockByUuid" column="lock_by_uuid" />
+		<result property="country" column="country" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="bankCode" column="bank_code" />
+		<result property="bankName" column="bank_name" />
+		<result property="issueBank" column="issue_bank" />
+		<result property="bankAccountCode" column="bank_account_code" />
+		<result property="bankAccountNumber" column="bank_account_number" />
+		<result property="bankAccountName" column="bank_account_name" />
+		<result property="bankAccountType" column="bank_account_type" />
+		<result property="certifyFile" column="certify_file" />
+		<result property="loginName" column="login_name" />
+		<result property="loginPassword" column="login_password" />
+		<result property="payPassword" column="pay_password" />
+		<result property="createTime" column="create_time" />
+		<result property="lastUseTime" column="last_use_time" />
+		<result property="data" column="data" javaType="HashMap" jdbcType="VARCHAR" typeHandler="com.maicard.th.TextHashMapTypeHandler"/>
+		<result property="currentStatus" column="current_status" />
+		<result property="ownerId" column="owner_id"/>
+	</resultMap>
+	<sql id="rowLimit">
+		<if test="limits &gt; 0">
+        LIMIT 
+            #{starts, jdbcType=BIGINT},
+      	 	#{limits, jdbcType=BIGINT}
+        </if>
+	</sql>
+	<sql id="orderClause">
+		<if test="orderBy != null">
+			ORDER BY ${orderBy}
+		</if>
+	</sql>
+	<sql id="selectColumns">
+		id,
+		server_id,
+		use_type,
+		withdraw_method_id,
+		balance,
+		parent_uuid,
+		refer_uuid,
+		uuid,
+		lock_by_uuid,
+		country,
+		province,
+		city,
+		bank_code,
+		bank_name,
+		issue_bank,
+		bank_account_code,
+		bank_account_number,
+		bank_account_name,
+		bank_account_type,
+		certify_file,
+		login_name,
+		login_password,
+		pay_password,
+		create_time,
+		last_use_time,
+		`data`,
+		current_status,
+		owner_id
+	</sql>
+
+	<insert id="insert" parameterType="com.maicard.money.entity.BankAccount"
+		useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO bank_account
+		(
+		<if test="id>0">id,</if>owner_id, server_id, use_type,withdraw_method_id, balance, parent_uuid, refer_uuid,
+		uuid, lock_by_uuid, country, province,city, bank_code,bank_name, issue_bank, bank_account_code,
+		bank_account_number, bank_account_name, bank_account_type, certify_file, login_name, login_password,	pay_password,
+		create_time, last_use_time, current_status, data)
+		VALUES
+		(
+		<if test="id>0">#{id},</if>#{ownerId}, #{serverId}, #{useType}, #{withdrawMethodId}, #{balance}, #{parentUuid}, #{referUuid},
+		#{uuid}, #{lockByUuid}, #{country}, #{province},#{city}, #{bankCode}, #{bankName}, #{issueBank}, #{bankAccountCode},
+		#{bankAccountNumber}, #{bankAccountName}, #{bankAccountType}, #{certifyFile}, #{loginName}, #{loginPassword}, #{payPassword},
+		#{createTime}, #{lastUseTime}, #{currentStatus}, #{data, javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler})
+	</insert>
+	<update id="plus" parameterType="com.maicard.money.entity.BankAccount">
+		UPDATE bank_account
+			SET balance = balance + #{balance}
+		WHERE
+			id = #{id}
+			<if test="lockStatus > 0">
+				AND current_status = #{lockStatus}
+			</if>
+	</update>
+	<update id="update" parameterType="com.maicard.money.entity.BankAccount">
+		UPDATE
+			bank_account
+		SET
+			server_id = #{serverId},
+			use_type = #{useType},
+			bank_account_code = #{bankAccountCode},
+			withdraw_method_id = #{withdrawMethodId},
+			balance = #{balance},
+			parent_uuid = #{parentUuid},
+			refer_uuid = #{referUuid},
+			uuid = #{uuid},
+			lock_by_uuid = #{lockByUuid},
+			country = #{country},
+			province = #{province}, city = #{city},
+			bank_code = #{bankCode}, bank_name = #{bankName},
+			issue_bank = #{issueBank}, bank_account_number = #{bankAccountNumber},
+			bank_account_name = #{bankAccountName}, 
+			bank_account_type = #{bankAccountType},
+			certify_file = #{certifyFile},
+			login_name = #{loginName},
+			login_password = #{loginPassword},
+			pay_password = #{payPassword},
+			create_time = #{createTime},
+			last_use_time = #{lastUseTime},
+			current_status = #{currentStatus},
+			data = #{data,javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler},
+			owner_id = #{ownerId}
+		WHERE
+			id = #{id}
+			<if test="lockStatus > 0">
+				AND current_status = #{lockStatus}
+			</if>
+	</update>
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+		bank_account
+		WHERE
+		id = #{id}
+	</delete>
+
+	<select id="select" parameterType="long" resultMap="bankAccountResult">
+		SELECT
+		<include refid="selectColumns" />
+		FROM
+		bank_account
+		WHERE
+		id = #{id}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+			<if test="id > 0">
+				id = #{id}
+			</if>
+			<if test="serverId > 0">
+				server_id = #{serverId}
+			</if>
+			<if test="useType != null">
+				AND use_type = #{useType}
+			</if>
+			<if test="useTypes  != null and useTypes.length > 0">
+				AND use_type in
+				<foreach item="item" collection="useTypes" open="("
+						 separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+
+			<if test="parentUuid > 0">
+				AND parent_uuid = #{parentUuid}
+			</if>
+			<if test="referUuid > 0">
+				AND refer_uuid = #{referUuid}
+			</if>
+			<if test="uuid > 0">
+				AND uuid = #{uuid}
+			</if>
+			<if test="lockByUuid > 0">
+				AND lock_by_uuid = #{lockByUuid}
+			</if>
+			<if test="fuzzyBankAccountName != null">
+				AND  bank_account_name LIKE concat('%', '${fuzzyBankAccountName}', '%')
+			</if>
+			<if test="fuzzyBankAccountNumber != null">
+				AND  bank_account_number LIKE concat('%', '${fuzzyBankAccountNumber}', '%')
+			</if>
+			<if test="inviters !=null and inviters.length > 0">
+				AND (uuid in (
+				<foreach item="item" collection="inviters" separator="," close=")">
+					#{item}
+				</foreach> OR parent_uuid in (
+				<foreach item="item" collection="inviters" separator="," close=")">
+					#{item}
+				</foreach>)
+			</if>
+			<if test="bankCode != null">
+				AND bank_code = #{bankCode}
+			</if>
+			<if test="bankAccountCode != null">
+				AND bank_account_code = #{bankAccountCode}
+			</if>
+			<if test="province != null">
+				AND province LIKE concat("%",#{province},"%")
+			</if>
+			<if test="city != null">
+				AND city LIKE concat("%",#{city},"%")
+			</if>
+			<if test="bankAccountType != null">
+				AND bank_account_type = #{bankAccountType}
+			</if>
+			<if test="bankName != null">
+				AND bank_name LIKE concat("%",#{bankName},"%")
+			</if>
+			<if test="bankAccountName != null">
+				AND bank_account_name LIKE concat("%",#{bankAccountName},"%")
+			</if>
+			<if test="bankAccountNumber != null">
+				AND bank_account_number LIKE concat("%",#{bankAccountNumber},"%")
+			</if>
+			<if test="issueBank != null">
+				AND issue_bank LIKE concat("%",#{issueBank},"%")
+			</if>
+			<if test="currentStatus != null">
+				AND current_status in
+				<foreach item="item" collection="currentStatus" open="("
+					separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="ownerId > 0">
+				AND owner_id = #{ownerId}
+		</if>
+		</where>
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="bankAccountResult">
+		SELECT
+		<include refid="selectColumns" />
+		FROM
+		bank_account
+		<include refid="criteriaWhereClause" />
+		<include refid="orderClause"/>
+		<include refid="rowLimit" />
+		
+	</select>
+	<select id="count" parameterType="map"
+		resultType="int">
+		SELECT
+		COUNT(*)
+		FROM
+		bank_account
+		<include refid="criteriaWhereClause" />
+		<include refid="orderClause"/>
+	</select>
+	<update id="setNormalAdd">
+		update bank_account set current_status=100001
+	</update>
+	<update id="setDefaultAdd" parameterType="com.maicard.money.entity.BankAccount">
+		update bank_account set current_status=100003 where
+		id=#{addressbookid}
+	</update>
+</mapper>

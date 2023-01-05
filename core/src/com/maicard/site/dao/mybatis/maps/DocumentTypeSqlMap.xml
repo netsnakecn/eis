@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:59:03 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.site.dao.mapper.DocumentTypeMapper">
+
+	<resultMap id="documentTypeResult" type="com.maicard.site.entity.DocumentType">
+		<result property="id" column="id"/>
+		<result property="documentTypeCode" column="document_type_code"/>
+		<result property="documentTypeName" column="document_type_name"/>
+		<result property="documentTypeDescription" column="document_type_description"/>
+		<result property="data" column="data" javaType="HashMap" jdbcType="VARCHAR" typeHandler="com.maicard.th.TextHashMapTypeHandler"/>
+		<result property="currentStatus" column="current_status"/>
+		<result property="flag" column="flag"/>
+		<result property="ownerId" column="owner_id"/>
+	</resultMap>
+	
+	<sql id="selectColumns">
+			id,
+			document_type_code,
+			document_type_name,
+			document_type_description,
+			`data`,
+			current_status,
+			flag
+	</sql>
+
+	<insert id="insert" parameterType="com.maicard.site.entity.DocumentType"  useGeneratedKeys="true"  keyProperty="id">
+		INSERT INTO document_type
+			(<if test="id>0">id,</if> owner_id, document_type_code, `data`,document_type_name, document_type_description, current_status, flag)
+		VALUES
+			(<if test="id>0">#{id},</if> #{ownerId}, #{documentTypeCode}, #{data, javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler}, #{documentTypeName}, #{documentTypeDescription}, #{currentStatus}, #{flag})
+	</insert>
+
+	<update id="update" parameterType="com.maicard.site.entity.DocumentType">
+		UPDATE
+			document_type
+		SET
+			document_type_code = #{documentTypeCode},
+			document_type_name = #{documentTypeName},
+			document_type_description = #{documentTypeDescription},
+			data = #{data,javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler},
+			current_status = #{currentStatus},
+			flag = #{flag},
+			owner_id = #{ownerId}
+		WHERE
+			id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			document_type
+		WHERE
+			id = #{id}
+	</delete>
+	
+	<select id="select" parameterType="long" resultMap="documentTypeResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			document_type
+		WHERE
+			id = #{id}
+	</select>
+	
+	<sql id="rowLimit">
+		<if test="limits &gt; 0">
+        LIMIT 
+            #{starts, jdbcType=BIGINT},
+      	 	#{limits, jdbcType=BIGINT}
+        </if>
+	</sql>
+	
+
+	<sql id="criteriaWhereClause">
+		<where>
+			<if test="currentStatus != null">
+				current_status in 
+				<foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+	        			#{item}
+	  			</foreach>				
+	  		</if>
+			<if test="documentTypeCode != null">
+				document_type_code=#{documentTypeCode}
+			</if>
+			<if test="id > 0">
+				AND `id` = #{id}
+			</if>
+		</where>
+	</sql>
+
+	<select id="listPk" parameterType="map" resultType="long">
+		SELECT
+			id
+		FROM
+			document_type
+		<include refid="criteriaWhereClause"/>
+		<include refid="rowLimit" />
+	</select>
+	
+	<select id="list" parameterType="map" resultMap="documentTypeResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			document_type
+		<include refid="criteriaWhereClause"/>
+		<include refid="rowLimit" />
+</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			document_type
+		<include refid="criteriaWhereClause"/>
+	</select>
+
+</mapper>

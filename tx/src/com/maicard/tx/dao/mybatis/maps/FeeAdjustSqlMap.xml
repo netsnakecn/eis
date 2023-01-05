@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.tx.dao.mapper.FeeAdjustMapper">
+	<resultMap id="feeAdjustResult" type="com.maicard.tx.entity.FeeAdjust">
+		<result property="id" column="id" />
+		<result property="priceObjectType" column="price_object_type" />
+		<result property="priceObjectId" column="price_object_id" />
+		<result property="priceType" column="price_type" />
+		<result property="priceIdentify" column="price_identify" />
+		<result property="clearDeliveryFee" column="clear_delivery_fee" />
+		<result property="deliveryCompanyId" column="delivery_company_id" />
+		<result property="currentStatus" column="current_status" />
+		<result property="beginTime" column="begin_time" />
+		<result property="endTime" column="end_time" />		
+		<result property="refOrderId" column="ref_order_id" />
+		<result property="fromArea" column="from_area" />
+		<result property="toArea" column="to_area" />
+		<result property="exclusive" column="exclusive" />
+		<result property="identify" column="identify" />
+		<result property="fee" column="fee" typeHandler="com.maicard.money.th.MoneyJsonHandler" />
+		<result property="ownerId" column="owner_id"/>
+	</resultMap>
+
+	<insert id="insert" parameterType="com.maicard.tx.entity.FeeAdjust" useGeneratedKeys="true"	keyProperty="id">
+		INSERT INTO fee_adjust(	<if test="id > 0">id,</if> owner_id, delivery_company_id, price_object_type, price_object_id, price_type, price_identify, clear_delivery_fee, current_status, begin_time,end_time, from_area, to_area, exclusive, identify , fee )
+		VALUES(<if test="id > 0">#{id},</if> #{ownerId},  #{deliveryCompanyId}, #{priceObjectType}, #{priceObjectId}, #{priceType}, #{priceIdentify}, #{clearDeliveryFee}, #{currentStatus},#{beginTime}, #{endTime}, #{fromArea}, #{toArea}, #{exclusive}, #{identify}, #{fee, typeHandler=com.maicard.money.th.MoneyJsonHandler} )
+	</insert>
+
+	<sql id="selectColumns">
+		id,
+		price_object_type,
+		price_object_id,
+		price_type,
+		price_identify,
+		clear_delivery_fee,
+		delivery_company_id,
+		current_status,
+		begin_time,
+		end_time,
+		from_area,
+		to_area,
+		exclusive,
+		identify,
+		fee,
+		owner_id
+	</sql>
+
+	<update id="update" parameterType="com.maicard.tx.entity.FeeAdjust">
+		UPDATE
+			fee_adjust
+		SET
+			price_object_type = #{priceObjectType},
+			price_object_id = #{priceObjectId},
+			price_type = #{priceType},
+			price_identify = #{priceIdentify},
+			delivery_company_id = #{deliveryCompanyId}, 
+			current_status = #{currentStatus},
+			begin_time = #{beginTime}, 
+			end_time = #{endTime},
+			clear_delivery_fee = #{clearDeliveryFee},	
+			from_area = #{fromArea},
+			to_area = #{toArea},
+			exclusive = #{exclusive},
+			identify = #{identify},
+			fee = #{fee, typeHandler=com.maicard.money.th.MoneyJsonHandler},
+			owner_id = #{ownerId}
+		WHERE
+			id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			fee_adjust
+		WHERE
+			id = #{id}
+	</delete>
+
+	<select id="select" parameterType="long" resultMap="feeAdjustResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			fee_adjust
+		WHERE
+			id = #{id}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+			owner_id = #{ownerId}
+			<if test="priceObjectType != null">
+				AND price_object_type = #{priceObjectType}
+			</if>
+			<if test="priceObjectId > 0">
+				AND price_object_id IN (#{priceObjectId},0)
+			</if>
+			<if test="priceType != null">
+				AND price_type = #{priceType}
+			</if>
+			<if test="priceIdentify != null">
+				AND price_identify = #{priceIdentify}
+			</if>
+			<if test="deliveryCompanyId > 0">
+				AND delivery_company_id IN (#{deliveryCompanyId},0)
+			</if>
+			<if test="fromArea != null">
+				AND from_area=#{fromArea}
+			</if>
+			<if test="toArea != null">
+				AND to_area=#{toArea}
+			</if>
+			<if test="identify != null">
+				AND identify=#{identify}
+			</if>
+			<if test="beginTime != null">
+				AND ( begin_time IS NULL OR begin_time &gt;= #{beginTime} )
+			</if>
+			<if test="endTime != null">
+				AND (end_time IS NULL OR end_time &lt;= #{endTime} )
+			</if>
+			<if test="id > 0">
+				AND `id` = #{id}
+			</if>
+			<if test="currentStatus != null">
+				AND current_status in
+				<foreach item="item" collection="currentStatus" open="("
+					separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+		</where>
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="feeAdjustResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			fee_adjust
+			<include refid="criteriaWhereClause" />
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			fee_adjust
+		<include refid="criteriaWhereClause" />
+	</select>
+
+</mapper>

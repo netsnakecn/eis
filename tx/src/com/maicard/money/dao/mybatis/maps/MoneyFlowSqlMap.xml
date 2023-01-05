@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.from//DTD Mapper 3.0//EN"
+        "http://mybatis.from/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.money.dao.mapper.MoneyFlowMapper">
+    <resultMap id="moneyFlowResult" type="com.maicard.money.entity.MoneyFlow">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="account_no" property="accountNo" jdbcType="VARCHAR"/>
+        <result column="uuid" property="uuid" jdbcType="BIGINT"/>
+        <result column="from_account_no" property="fromAccountNo" jdbcType="VARCHAR"/>
+        <result column="from_merchant_no" property="fromMerchantNo" jdbcType="VARCHAR"/>
+        <result column="trade_type" property="tradeType" jdbcType="VARCHAR"/>
+        <result column="sub_trade_type" property="subTradeType" jdbcType="VARCHAR"/>
+        <result column="fund_type" property="fundType" jdbcType="VARCHAR"/>
+        <result column="transaction_id" property="transactionId" jdbcType="VARCHAR"/>
+        <result column="bank_order_id" property="bankOrderId" jdbcType="VARCHAR"/>
+        <result column="opt_type" property="optType" jdbcType="VARCHAR"/>
+        <result column="trade_amount" property="tradeAmount" jdbcType="BIGINT"/>
+        <result column="finish_amount" property="finishAmount" jdbcType="BIGINT"/>
+        <result column="pay_channel" property="payChannel" jdbcType="VARCHAR"/>
+        <result column="share_config_id" property="shareConfigId" jdbcType="INTEGER"/>
+        <result column="card_type" property="cardType" jdbcType="VARCHAR"/>
+        <result column="fee_rate" property="feeRate" jdbcType="VARCHAR"/>
+        <result column="order_amount" property="orderAmount" jdbcType="BIGINT"/>
+        <result column="account_category" property="accountCategory" jdbcType="VARCHAR"/>
+        <result column="ext_params" property="extParams" jdbcType="VARCHAR"/>
+        <result column="trade_status" property="tradeStatus" jdbcType="VARCHAR"/>
+        <result column="clear_status" property="clearStatus" jdbcType="VARCHAR"/>
+        <result column="clear_type" property="clearType" jdbcType="VARCHAR"/>
+        <result column="trade_subject" property="tradeSubject" jdbcType="VARCHAR"/>
+        <result column="currency" property="currency" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+ 
+ 
+
+ 	<sql id="rowLimit">
+		<if test="limits &gt; 0">
+        LIMIT 
+            #{starts, jdbcType=BIGINT},
+      	 	#{limits, jdbcType=BIGINT}
+        </if>
+	</sql>
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="columns">
+        <![CDATA[
+         id,account_no,uuid,from_merchant_no,from_account_no,trade_type,pay_channel,share_config_id,card_type,fee_rate,sub_trade_type,opt_type,fund_type,trade_amount,
+         finish_amount,transaction_id,currency,account_category,trade_status,clear_status,clear_type,trade_subject,ext_params,create_time,
+         modify_time,order_amount,bank_order_id
+        ]]>
+    </sql>
+
+    <insert id="insert" keyProperty="id">
+        INSERT INTO money_flow(account_no,uuid,from_merchant_no,from_account_no,trade_type,pay_channel,share_config_id,card_type,fee_rate,sub_trade_type,fund_type,opt_type,trade_amount,finish_amount,transaction_id,currency,account_category,trade_status,clear_status,clear_type,trade_subject,ext_params,create_time,modify_time,order_amount,bank_order_id)
+        VALUES (
+            #{accountNo, jdbcType=VARCHAR} ,
+            #{uuid, jdbcType=BIGINT} ,
+            #{fromMerchantNo, jdbcType=VARCHAR} ,
+            #{fromAccountNo, jdbcType=VARCHAR} ,
+            #{tradeType, jdbcType=VARCHAR} ,
+            #{payChannel, jdbcType=VARCHAR} ,
+            #{shareConfigId, jdbcType=INTEGER} ,
+            #{cardType, jdbcType=VARCHAR} ,
+            #{feeRate, jdbcType=VARCHAR} ,
+            #{subTradeType, jdbcType=VARCHAR} ,
+            #{fundType, jdbcType=VARCHAR} ,
+            #{optType, jdbcType=VARCHAR} ,
+            #{tradeAmount, jdbcType=BIGINT} ,
+            #{finishAmount, jdbcType=BIGINT} ,
+            #{transactionId, jdbcType=VARCHAR} ,
+            #{currency, jdbcType=VARCHAR} ,
+            #{accountCategory, jdbcType=VARCHAR} ,
+            #{tradeStatus, jdbcType=VARCHAR} ,
+            #{clearStatus, jdbcType=VARCHAR} ,
+            #{clearType, jdbcType=VARCHAR} ,
+            #{tradeSubject, jdbcType=VARCHAR} ,
+            #{extParams, jdbcType=VARCHAR} ,
+            NOW(),
+            NOW(),
+            #{orderAmount, jdbcType=VARCHAR} ,
+            #{bankOrderId, jdbcType=VARCHAR} 
+        )
+    </insert>
+
+
+    <update id="updateStatusById">
+        UPDATE money_flow SET
+        trade_status =  #{tradeStatus, jdbcType=VARCHAR},
+        modify_time= NOW()
+        WHERE id = #{id, jdbcType=BIGINT}
+  </update>
+
+
+    <select id="count" resultType="int">
+        SELECT COUNT(*) FROM money_flow
+        <include refid="findWhere"/>
+    </select>
+
+
+    <select id="list" parameterType="map" resultMap="moneyFlowResult">
+        SELECT
+        <include refid="columns"/>
+        FROM money_flow
+        <include refid="findWhere"/>
+	    ORDER BY create_time DESC, id DESC
+        <include refid="rowLimit" />
+
+    </select>
+
+
+    <sql id="findWhere">
+        <where>
+            <include refid="queryParams"></include>
+        </where>
+    </sql>
+
+    <sql id="queryParams">
+        <if test="id > 0">
+            AND id = #{id}
+        </if>
+        <if test="inviters != null and inviters.length > 0">
+                AND uuid IN
+                <foreach item="item" index="index" collection="inviters" open="(" separator=" , " close=")">
+                    #{item}
+                </foreach>
+        </if>
+        <if test="accountNo != null ">
+            AND account_no = #{accountNo,jdbcType=VARCHAR}
+        </if>
+        <if test="uuid > 0">
+            AND uuid = #{uuid, jdbcType=VARCHAR}
+        </if>
+        <if test="uuids != null and uuids.length > 0">
+            AND uuid IN
+			<foreach item="item" index="index" collection="uuids" open="(" separator=" , " close=")">
+                        #{item}
+       		</foreach>
+        </if>
+        <if test="accountNos != null and accountNos.length > 0">
+            AND account_no IN
+			<foreach item="item" index="index" collection="accountNos" open="(" separator=" , " close=")">
+                        #{item}
+       		</foreach>
+        </if>
+        <if test="minTradeAmount > 0">
+        	AND trade_amount &gt;= #{minTradeAmount} * 100
+        </if>
+        <if test="maxTradeAmount > 0">
+        	AND trade_amount &lt;= #{maxTradeAmount} * 100
+        </if>
+
+        <if test="transactionId != null">
+            AND transaction_id = #{transactionId, jdbcType=VARCHAR}
+        </if>
+        <if test="accountCategory != null">
+            AND account_category = #{accountCategory, jdbcType=VARCHAR}
+        </if>
+        <if test="fundType != null">
+            AND fund_type = #{fundType, jdbcType=VARCHAR}
+        </if>
+        <if test="optType != null">
+            AND opt_type = #{optType, jdbcType=VARCHAR}
+        </if>
+        <if test="createTimeBegin != null">
+            AND create_time &gt;= #{createTimeBegin, jdbcType=TIMESTAMP}
+        </if>
+        <if test="tradeStatus != null">
+            AND trade_status = #{tradeStatus, jdbcType=VARCHAR}
+        </if>
+        <if test="createTimeEnd != null">
+            AND create_time &lt;= #{createTimeEnd, jdbcType=TIMESTAMP}
+        </if>
+        <if test="tradeType != null">
+            AND trade_type = #{tradeType, jdbcType=VARCHAR}
+        </if>
+        <if test="payChannel != null">
+            AND pay_channel = #{payChannel, jdbcType=VARCHAR}
+        </if>
+        <if test="shareConfigId > 0">
+            AND share_config_id = #{shareConfigId}
+        </if>
+        <if test="clearType != null">
+            AND clear_type = #{clearType, jdbcType=VARCHAR}
+        </if>
+        <if test="clearStatus != null">
+            AND clear_status = #{clearStatus, jdbcType=VARCHAR}
+        </if>
+
+        <if test="cardType != null">
+            AND card_type = #{cardType, jdbcType=VARCHAR}
+        </if>
+    </sql>
+
+
+
+    <select id="sum" parameterType="map" resultType="long">
+        SELECT IFNULL(SUM(order_amount),0) order_amount
+        FROM money_flow
+        <include refid="findWhere"/>
+    </select>
+
+
+
+    <update id="updateClearStatus">
+        UPDATE money_flow SET clear_status = #{newClearStatus, jdbcType=VARCHAR}, modify_time= NOW()
+        <include refid="findWhere"/>
+    </update>
+</mapper>

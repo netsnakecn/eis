@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.tx.dao.mapper.DeliveryOrderMapper">
+	<resultMap id="deliveryOrderResult" type="com.maicard.tx.entity.DeliveryOrder">
+		<result property="id" column="id" />
+		<result property="outOrderId" column="out_order_id" />
+		<result property="deliveryCompany" column="delivery_company" />
+		<result property="deliveryCompanyId" column="delivery_company_id" />
+		<result property="memory" column="memory" />
+		<result property="currentStatus" column="current_status" />
+		<result property="createTime" column="create_time" />
+		<result property="closeTime" column="close_time" />
+		<result property="uuid" column="uuid" />
+		
+		<result property="country" column="country"/>
+		<result property="province" column="province"/>
+		<result property="city" column="city"/>
+		<result property="district" column="district"/>
+		<result property="address" column="address"/>
+		<result property="contact" column="contact"/>
+		<result property="phone" column="phone"/>
+		<result property="mobile" column="mobile"/>
+		<result property="postcode" column="postcode"/>
+		
+		<result property="refOrderId" column="ref_order_id" />
+		<result property="fromArea" column="from_area" />
+		<result property="toArea" column="to_area" />
+		<result property="fee" column="fee" javaType="com.maicard.money.entity.Price" jdbcType="VARCHAR" typeHandler="com.maicard.money.th.PriceJsonHandler"/>
+		<result property="traceData" column="trace_data" javaType="HashMap" jdbcType="VARCHAR" typeHandler="com.maicard.th.TextHashMapTypeHandler"/>
+		<result property="ownerId" column="owner_id"/>
+	</resultMap>
+
+	<insert id="insert" parameterType="com.maicard.tx.entity.DeliveryOrder" useGeneratedKeys="true"	keyProperty="id">
+		INSERT INTO delivery_order(	<if test="id > 0">id,</if> owner_id, delivery_company_id, delivery_company, out_order_id, memory, current_status, create_time,close_time, uuid, province,city, district, address, contact, phone, mobile, postcode, ref_order_id, from_area, to_area, fee, trace_data )
+		VALUES(<if test="id > 0">#{id},</if> #{ownerId},  #{deliveryCompanyId}, #{deliveryCompany},  #{outOrderId}, #{memory},#{currentStatus},#{createTime}, #{closeTime}, #{uuid}, #{province},#{city}, #{district}, #{address}, #{contact}, #{phone}, #{mobile}, #{postcode}, #{refOrderId}, #{fromArea}, #{toArea}, #{fee, javaType=com.maicard.money.entity.Price, jdbcType=VARCHAR, typeHandler=com.maicard.money.th.PriceJsonHandler}, #{traceData, javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler})
+	</insert>
+
+	<sql id="selectColumns">
+		id,
+		out_order_id,
+		delivery_company_id,
+		delivery_company,
+		current_status,
+		create_time,
+		close_time,
+		uuid,
+		
+		country,
+		province,
+		city,
+		district,
+		address,
+		contact,
+		phone,
+		mobile,
+		postcode,
+		
+		ref_order_id,
+		from_area,
+		to_area,
+		fee,
+		trace_data,
+		owner_id
+	</sql>
+
+	<update id="update" parameterType="com.maicard.tx.entity.DeliveryOrder">
+		UPDATE
+			delivery_order
+		SET
+			out_order_id = #{outOrderId},
+			delivery_company_id = #{deliveryCompanyId},
+			delivery_company = #{deliveryCompany},
+			current_status = #{currentStatus},
+			create_time = #{createTime}, 
+			close_time = #{closeTime},
+			uuid = #{uuid},			
+			country = #{country},
+			province = #{province},
+			city = #{city},
+			district = #{district},
+			address = #{address},
+			contact = #{contact},
+			phone = #{phone},
+			mobile = #{mobile},
+			postcode = #{postcode},
+			ref_order_id = #{refOrderId},
+			from_area = #{fromArea},
+			to_area = #{toArea},
+			fee = #{fee, javaType=com.maicard.money.entity.Price, jdbcType=VARCHAR, typeHandler=com.maicard.money.th.PriceJsonHandler},
+			trace_data = #{traceData,javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler},
+			owner_id = #{ownerId}
+		WHERE
+			id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			deliveryOrder
+		WHERE
+			id = #{id}
+	</delete>
+
+	<select id="select" parameterType="long" resultMap="deliveryOrderResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			delivery_order
+		WHERE
+			id = #{id}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+			owner_id = #{ownerId}
+			<if test="uuid > 0">
+				AND uuid=#{uuid}
+			</if>
+			<if test="refOrderId != null">
+				AND ref_order_id=#{refOrderId}
+			</if>
+			<if test="deliveryCompanyId > 0">
+				AND delivery_company_id=#{deliveryCompanyId}
+			</if>
+			<if test="deliveryCompany != null">
+				AND delivery_company=#{deliveryCompany}
+			</if>
+			<if test="currentStatus != null">
+				AND current_status in
+				<foreach item="item" collection="currentStatus" open="("
+					separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="id > 0">
+				AND `id` = #{id}
+			</if>
+		</where>
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="deliveryOrderResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			delivery_order
+			<include refid="criteriaWhereClause" />
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			delivery_order
+		<include refid="criteriaWhereClause" />
+	</select>
+
+</mapper>

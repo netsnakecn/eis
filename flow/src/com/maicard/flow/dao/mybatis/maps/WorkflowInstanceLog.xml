@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:51:38 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.flow.sql.WorkflowInstanceLog">
+
+	<resultMap id="workflowInstanceLogResult" type="WorkflowInstanceLog">
+		<result property="id" column="id"/>
+		<result property="workflowInstanceId" column="workflow_instance_id"/>
+		<result property="step" column="step"/>
+		<result property="priority" column="priority"/>
+		<result property="targetObjectType" column="target_object_type"/>
+		<result property="targetObjectOperateCode" column="target_object_operate_code"/>
+		<result property="targetObjectAttribute" column="target_object_attribute"/>
+		<result property="targetObjectValue" column="target_object_value"/>
+		<result property="editable" column="editable"/>
+		<result property="processClass" column="process_class"/>
+		<result property="successPolicy" column="success_policy"/>
+		<result property="startTime" column="start_time"/>
+		<result property="endTime" column="end_time"/>
+		<result property="currentStatus" column="current_status"/>
+		<result property="ownerId" column="owner_id"/>
+	</resultMap>
+	
+	<sql id="selectColumns">
+			id,
+			workflow_instance_id,
+			step,
+			priority,
+			target_object_type,
+			target_object_operate_code,
+			target_object_attribute,
+			target_object_value,
+			editable,
+			process_class,
+			success_policy,
+			start_time,
+			end_time,
+			current_status,
+			owner_id
+	</sql>
+
+	<insert id="insert" parameterType="WorkflowInstanceLog" useGeneratedKeys="true"  keyProperty="id">
+		INSERT INTO workflow_instance_log
+			(<if test="id>0">id,</if>owner_id, workflow_instance_id, step, priority, target_object_type, target_object_operate_code, target_object_attribute, target_object_value, editable, process_class, success_policy, start_time, end_time, current_status)
+		VALUES
+			(<if test="id>0">#{id},</if>#{ownerId}, #{workflowInstanceId}, #{step}, #{priority}, #{targetObjectType}, #{targetObjectOperateCode}, #{targetObjectAttribute}, #{targetObjectValue}, #{editable}, #{processClass}, #{successPolicy}, #{startTime}, #{endTime}, #{currentStatus})
+	</insert>
+
+	<update id="update" parameterType="WorkflowInstanceLog">
+		UPDATE
+			workflow_instance_log
+		SET
+			workflow_instance_id = #{workflowInstanceId},
+			step = #{step},
+			priority = #{priority},
+			target_object_type = #{targetObjectType},
+			target_object_operate_code = #{targetObjectOperateCode},
+			target_object_attribute = #{targetObjectAttribute},
+			target_object_value = #{targetObjectValue},
+			editable = #{editable},
+			process_class = #{processClass},
+			success_policy = #{successPolicy},
+			start_time = #{startTime},
+			end_time = #{endTime},
+			current_status = #{currentStatus},
+			owner_id = #{ownerId}
+		WHERE
+			id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			workflow_instance_log
+		WHERE
+			id = #{id}
+	</delete>
+	
+	<select id="select" parameterType="long" resultMap="workflowInstanceLogResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			workflow_instance_log
+		WHERE
+			id = #{id}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+		<if test="currentStatus != null">
+				current_status in 
+				<foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+	        			#{item}
+	  			</foreach>				
+	  	</if>
+	  	<if test="ownerId > 0">
+				AND owner_id = #{ownerId}
+		</if>
+	  	</where>
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="workflowInstanceLogResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			workflow_instance_log
+		<include refid="criteriaWhereClause"/>
+		ORDER BY
+			id ASC
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			workflow_instance_log
+		<include refid="criteriaWhereClause"/>
+	</select>
+
+</mapper>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:57:55 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.security.dao.mapper.SecurityLevelMapper">
+
+	<resultMap id="securityLevelResult" type="com.maicard.security.entity.SecurityLevel">
+		<result property="level" column="`level`"/>
+		<result property="name" column="`name`"/>
+		<result property="description" column="description"/>
+		<result property="data" column="data" javaType="HashMap" jdbcType="VARCHAR" typeHandler="com.maicard.th.TextHashMapTypeHandler"/>
+		<result property="currentStatus" column="current_status"/>
+	</resultMap>
+	
+	<sql id="selectColumns">
+			`level`,
+			`name`,
+			description,
+			data,
+			current_status
+	</sql>
+
+	<insert id="insert" parameterType="com.maicard.security.entity.SecurityLevel" useGeneratedKeys="true"  keyProperty="level">
+		INSERT INTO security_level
+			(<if test="level>0">`level`,</if> owner_id, `name`, description,parent_`level`,data,current_status)
+		VALUES
+			(<if test="level>0">#{level},</if> #{ownerId}, #{name}, #{description},#{data, javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler}, #{currentStatus})
+	</insert>
+
+	<update id="update" parameterType="com.maicard.security.entity.SecurityLevel">
+		UPDATE
+			security_level
+		SET
+			`name` = #{name},
+			description = #{description},			
+			data = #{data,javaType=HashMap, jdbcType=VARCHAR,typeHandler=com.maicard.th.TextHashMapTypeHandler},
+			current_status = #{currentStatus},
+		WHERE
+			`level` = #{level}
+	</update>
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			security_level
+		WHERE
+			`level` = #{level}
+	</delete>
+	
+	<select id="select" parameterType="long" resultMap="securityLevelResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			security_level
+		WHERE
+			`level` = #{level}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+		<if test="@com.maicard.misc.Ognl@isValueArray(currentStatus)">
+				current_status in 
+				<foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+	        			#{item}
+	  			</foreach>				
+	  	</if>
+		</where>
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="securityLevelResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			security_level
+		<include refid="criteriaWhereClause"/>
+		
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			security_level
+		<include refid="criteriaWhereClause"/>
+	</select>
+
+</mapper>

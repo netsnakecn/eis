@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:57:41 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.security.dao.mapper.PartnerPrivilegeMapper">
+
+    <resultMap id="partnerPrivilegeResult" type="com.maicard.security.entity.Privilege">
+        <result property="id" column="id"/>
+        <result property="parentPid" column="parent_pid"/>
+        <result property="operateCode" column="operate_code"/>
+        <result property="privilegeName" column="privilege_name"/>
+        <result property="privilegeDesc" column="privilege_desc"/>
+        <result property="objectTypeCode" column="object_type_code"/>
+        <result property="objectList" column="object_list"/>
+        <result property="objectAttributePattern" column="object_attribute_pattern"/>
+        <result property="matchPattern" column="match_pattern"/>
+        <result property="recursive" column="recursive"/>
+        <result property="inherit" column="inherit"/>
+        <result property="currentStatus" column="current_status"/>
+        <result property="flag" column="flag"/>
+        <result property="ownerId" column="owner_id"/>
+    </resultMap>
+
+    <resultMap id="PartnerResult" type="com.maicard.security.entity.User">
+        <result property="uuid" column="uuid"/>
+    </resultMap>
+
+    <sql id="rowLimit">
+        <if test="limits &gt; 0">
+            LIMIT
+            #{starts, jdbcType=BIGINT},
+            #{limits, jdbcType=BIGINT}
+        </if>
+    </sql>
+
+    <sql id="selectColumns">
+        a.id,
+        a.parent_pid,
+        a.operate_code,
+        a.privilege_name,
+        a.privilege_desc,
+        a.object_attribute_pattern,
+        a.object_type_code,
+        a.object_list,
+        a.match_pattern,
+        a.recursive,
+        a.inherit,
+        a.current_status,
+        a.flag,
+        a.owner_id
+    </sql>
+
+    <insert id="insert" parameterType="com.maicard.security.entity.Privilege" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO partner_privilege
+        (<if test="id>0">id,</if>parent_pid, operate_code, privilege_name, privilege_desc, object_attribute_pattern,
+        object_type_code, object_list, match_pattern, `recursive`, inherit, current_status, flag, owner_id)
+        VALUES
+        (<if test="id>0">#{id},</if>#{parentPid}, #{operateCode} , #{privilegeName}, #{privilegeDesc},
+        #{objectAttributePattern}, #{objectTypeCode}, #{objectList}, #{matchPattern}, #{recursive}, #{inherit},
+        #{currentStatus}, #{flag}, #{ownerId})
+    </insert>
+
+    <update id="update" parameterType="com.maicard.security.entity.Privilege">
+        UPDATE
+        partner_privilege
+        SET
+        parent_pid = #{parentPid},
+        operate_code = #{operateCode},
+        privilege_name = #{privilegeName},
+        privilege_desc = #{privilegeDesc},
+        object_attribute_pattern = #{objectAttributePattern},
+        object_type_code = #{objectTypeCode},
+        object_list = #{objectList},
+        match_pattern = #{matchPattern},
+        `recursive` = #{recursive},
+        inherit = #{inherit},
+        current_status = #{currentStatus},
+        flag = #{flag},
+        owner_id = #{ownerId}
+
+        WHERE
+        id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="long">
+        DELETE FROM
+        partner_privilege
+        WHERE
+        id = #{id}
+    </delete>
+
+    <select id="select" parameterType="long" resultMap="partnerPrivilegeResult">
+        SELECT
+        <include refid="selectColumns"/>
+        FROM
+        partner_privilege as a
+        WHERE
+        id = #{id}
+    </select>
+
+    <sql id="criteriaWhereClause">
+        <where>
+            <if test="@com.maicard.misc.Ognl@isValueArray(currentStatus)">
+                a.current_status in
+                <foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotZero(ownerId)">
+                AND a.owner_id = #{ownerId}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(objectTypeCode)">
+                AND a.object_type_code = #{objectTypeCode}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isValueArray(roleIds)">
+                AND a.id IN (SELECT privilege_id FROM partner_privilege_role_relation WHERE role_id IN
+                <foreach item="item" collection="roleIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+                )
+            </if>
+            <if test="id > 0">
+                AND `id` = #{id}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(q)">
+                AND (
+                privilege_name LIKE concat('%', '${q}', '%')
+                OR
+                privilege_desc LIKE concat('%', '${q}', '%')
+                OR
+                object_type_code LIKE concat('%', '${q}', '%')
+                )
+            </if>
+        </where>
+    </sql>
+
+    <select id="list" parameterType="map" resultMap="partnerPrivilegeResult">
+        SELECT
+        <include refid="selectColumns"/>
+        FROM
+        partner_privilege as a
+        <include refid="criteriaWhereClause"/>
+        <if test="orderBy != null">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="orderBy == null">
+            ORDER BY
+            object_type_code, id
+        </if>
+
+        <include refid="rowLimit"/>
+    </select>
+
+    <select id="count" parameterType="map" resultType="int">
+        SELECT
+        COUNT(*)
+        FROM
+        partner_privilege as a
+        <include refid="criteriaWhereClause"/>
+    </select>
+
+    <select id="listByRole" parameterType="map" resultMap="partnerPrivilegeResult">
+        SELECT
+        DISTINCT
+        <include refid="selectColumns"/>
+        FROM
+        partner_privilege AS a INNER JOIN partner_privilege_role_relation AS b ON a.id=b.privilege_id
+        <include refid="criteriaWhereClause"/>
+
+    </select>
+
+</mapper>

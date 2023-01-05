@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	">
+
+	<!--配置jedis的连接工厂 -->
+	 
+	<bean id="jedisConnectionFactory"
+		class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+		<property name="hostName" value="${redis.host}"></property>
+		<property name="port" value="${redis.port}" />
+		<property name="usePool" value="true" />
+		<property name="poolConfig" ref="jedisPoolConfig" />
+		<property name="password" value="${redis.pass}" />
+	</bean>
+
+
+	<bean id="om" class="com.maicard.utils.JsonUtils" factory-method="getSerializeInstance"/>
+
+	<bean id="zeroDuration" class="java.time.Duration">
+		<constructor-arg index="0" value="0"/>
+		<constructor-arg index="1" value="0"/>
+	</bean>
+	<bean id="keyPrefix" class="org.springframework.data.redis.cache.CacheKeyPrefix" factory-method="simple">
+	</bean>
+
+
+	<bean id="stringSerializer" class="org.springframework.data.redis.serializer.StringRedisSerializer">
+	</bean>
+	<bean id="jacksonSerializer" class="org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer">
+		<constructor-arg ref="om"/>
+	</bean>
+	<bean id="stringSerializerPair" class="org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair"  factory-method="fromSerializer">
+		<constructor-arg ref="stringSerializer" />
+	</bean>
+	<bean id="jacksonSerializerPair" class="org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair"  factory-method="fromSerializer">
+		<constructor-arg ref="jacksonSerializer" />
+	</bean>
+
+	<bean id="defaultFormattingConversionService" class="org.springframework.format.support.DefaultFormattingConversionService" />
+
+	<bean id="defaultRedisCacheConfiguration" class="org.springframework.data.redis.cache.RedisCacheConfiguration"
+		  >
+		<constructor-arg index="0" ref="zeroDuration"/>
+		<constructor-arg index="1" value="false"/>
+		<constructor-arg index="2" value="true"/>
+		<constructor-arg index="3" ref="keyPrefix"/>
+		<constructor-arg index="4" ref="stringSerializerPair"/>
+		<constructor-arg index="5"
+						 ref="jacksonSerializerPair"/>
+		<constructor-arg index="6" ref="defaultFormattingConversionService"/>
+
+	</bean>
+
+	<bean id="redisCacheWriter" class="org.springframework.data.redis.cache.DefaultRedisCacheWriter">
+		<constructor-arg name="connectionFactory" ref="jedisConnectionFactory"/>
+	</bean>
+
+
+
+	<!-- 声明reids缓存管理器 -->
+	<bean id="cacheManager" class="org.springframework.data.redis.cache.RedisCacheManager">
+		<constructor-arg index="0" ref="redisCacheWriter"></constructor-arg>
+		<constructor-arg index="1" ref="defaultRedisCacheConfiguration"></constructor-arg>
+	</bean>
+	
+	<!--  deprecated, use spring-data-redis instead -->
+	<!-- 
+	<bean id="cacheManager" class="org.springframework.cache.support.SimpleCacheManager">
+		<property name="caches">    
+            <set>    
+                <bean class="com.maicard.core.service.impl.SpringRedisCacheImpl" p:name="eis" />
+                <bean class="com.maicard.core.service.impl.SpringRedisCacheImpl" p:name="user" />
+                <bean class="com.maicard.core.service.impl.SpringRedisCacheImpl" p:name="product" />
+            </set>    
+         </property>    
+	</bean>
+ 	-->
+</beans>

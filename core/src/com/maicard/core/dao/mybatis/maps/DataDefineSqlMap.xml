@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.core.dao.mapper.DataDefineMapper">
+
+	<resultMap id="dataDefineResult" type="com.maicard.core.entity.DataDefine">
+		<result property="currentStatus" column="current_status"/>
+		<result property="id" column="id"/>
+		<result property="dataCode" column="data_code"/>
+		<result property="dataName" column="data_name"/>
+		<result property="dataDescription" column="data_description"/>
+		<result property="dataType" column="data_type"/>
+		<result property="displayLevel" column="display_level"/>
+		<result property="displayMode" column="display_mode"/>
+		<result property="required" column="required"/>
+		<result property="defaultValue" column="default_value"/>
+		<result property="displayWeight" column="display_weight"/>
+		<result property="flag" column="flag"/>
+		<result property="inputLevel" column="input_level"/>
+		<result property="inputMethod" column="input_method"/>
+		<result property="objectType" column="object_type"/>		
+		<result property="objectId" column="object_id"/>
+		<result property="objectExtraId" column="object_extra_id"/>		
+		<result property="ttl" column="ttl"/>
+		<result property="validDataEnum" column="valid_data_enum" javaType="HashMap" jdbcType="VARCHAR" typeHandler="com.maicard.th.TextHashMapTypeHandler"/>
+		<result property="compareMode" column="compare_mode"/>
+		<result property="category" column="category"/>
+		<result property="ownerId" column="owner_id"/>
+		
+	</resultMap>
+	
+	<sql id="rowLimit">
+		<if test="limits &gt; 0">
+        LIMIT 
+            #{starts, jdbcType=BIGINT},
+      	 	#{limits, jdbcType=BIGINT}
+        </if>
+	</sql>
+	
+
+	<insert id="insert" parameterType="com.maicard.core.entity.DataDefine"  useGeneratedKeys="true"  keyProperty="id">
+		INSERT INTO
+		data_define
+			(<if test="id">id,</if>owner_id, current_status,  data_code, data_name, data_description, data_type, display_level, display_mode, required, default_value, display_weight, flag, input_level, input_method, object_type, object_id, object_extra_id, ttl, valid_data_enum, compare_mode, category )
+		VALUES
+			(<if test="id">#{id}, </if>#{ownerId}, #{currentStatus}, #{dataCode}, #{dataName}, #{dataDescription},  #{dataType}, #{displayLevel}, #{displayMode}, #{required}, #{defaultValue}, #{displayWeight}, #{flag},  #{inputLevel},  #{inputMethod}, #{objectType}, #{objectId}, #{objectExtraId}, #{ttl}, #{validDataEnum, javaType=HashMap, jdbcType=VARCHAR}, #{compareMode}, #{category})
+	</insert>
+
+	<update id="update" parameterType="com.maicard.core.entity.DataDefine">
+		UPDATE
+			data_define
+		<set>
+			<if test="currentStatus > 0">
+				current_status = #{currentStatus},
+			</if>
+			<if test="dataCode != null">
+				data_code = #{dataCode},
+			</if>
+			<if test="dataType != null">
+				data_type = #{dataType},
+			</if>
+			<if test="dataName != null">
+				data_name = #{dataName},
+			</if>
+			<if test="dataDescription != null">
+				data_description =  #{dataDescription},
+			</if>
+			<if test="displayLevel != null">
+				display_level = #{displayLevel},
+			</if>
+			<if test="displayMode != null">
+				display_mode = #{displayMode},
+			</if>
+			category = #{category},
+ 			required = #{required},
+ 			
+ 			<if test="defaultValue != null">
+				default_value = #{defaultValue},
+			</if>
+			<if test="displayWeight != null">
+				display_weight = #{displayWeight},
+			</if>
+			<if test="flag > 0">
+			flag = #{flag},
+			</if>
+			<if test="inputLevel != null">
+			input_level = #{inputLevel},
+			</if>
+			<if test="inputMethod != null">
+			input_method = #{inputMethod},
+			</if>
+			<if test="objectType != null">
+				object_type = #{objectType},
+			</if>
+			<if test="objectId > -1">
+				object_id = #{objectId},
+			</if>
+			<if test="objectExtraId > -1">
+			object_extra_id = #{objectExtraId},
+			</if>
+			<if test="ttl > 0">
+			ttl = #{ttl},
+			</if>
+			<if test="validDataEnum != null">
+			
+			valid_data_enum = #{validDataEnum,javaType=HashMap, jdbcType=VARCHAR},
+			</if>
+			<if test="compareMode != null">
+			compare_mode = #{compareMode},
+			</if>
+			<if test="ownerId > 0">
+			owner_id = #{ownerId}
+			</if>
+		</set>
+		<where>
+			id = #{id}
+		</where>
+	</update>
+	
+	<sql id="selectColumns">
+			id,
+			current_status,
+			data_code,
+			data_type,
+			data_name,
+			data_description,
+			display_level,
+			display_mode,
+			required,
+			default_value,
+			display_weight,
+			flag,
+			input_level,
+			input_method,
+			object_type,
+			object_id,
+			object_extra_id,
+			ttl,			
+			valid_data_enum,
+			compare_mode,
+		    category,
+			owner_id
+	</sql>	
+
+	<select id="select" parameterType="long" resultMap="dataDefineResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			data_define 
+		WHERE
+			id = #{id}
+		
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+			<!-- <if test="ownerId > 0">
+				owner_id = #{ownerId}
+			</if> -->
+			<if test="@com.maicard.misc.Ognl@isValueArray(currentStatus)">
+				current_status in 
+				<foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+	        			#{item}
+	  			</foreach>				
+	  		</if>
+			<if test="@com.maicard.misc.Ognl@isNotEmpty(objectType)">
+				AND object_type=#{objectType}
+			</if>
+			<if test="@com.maicard.misc.Ognl@isNotZero(objectId)">
+				AND (object_id=#{objectId} or object_id = 0)
+			</if>
+			<if test="@com.maicard.misc.Ognl@isNotZero(objectExtraId)">
+				AND (object_extra_id=#{objectExtraId} or object_extra_id=0)
+			</if>
+			<if test="@com.maicard.misc.Ognl@isNotEmpty(dataCode)">
+				AND data_code=#{dataCode}
+			</if>
+			<if test="@com.maicard.misc.Ognl@isNotEmpty(inputMethod)">
+				AND input_method=#{inputMethod}
+			</if>
+			<if test="@com.maicard.misc.Ognl@isNotEmpty(displayLevel)">
+				AND display_level=#{displayLevel}
+			</if>
+			<if test="@com.maicard.misc.Ognl@isNotEmpty(category)">
+				AND category=#{category}
+			</if>
+			<if test="@com.maicard.misc.Ognl@isNotZero(id)">
+				AND id=#{id}
+			</if>
+			
+		</where>
+	</sql>
+	
+	<select id="listPk" parameterType="map" resultType="long">
+		SELECT
+			id
+		FROM
+			data_define 
+		<include refid="criteriaWhereClause"/> 
+		<include refid="rowLimit" />
+	</select>
+
+	<select id="list" parameterType="map" resultMap="dataDefineResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			data_define 
+		<include refid="criteriaWhereClause"/> 
+		<include refid="rowLimit" />
+	</select>
+	
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			data_define
+		WHERE
+			id = #{id}		
+	</delete>	
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			data_define 
+		<include refid="criteriaWhereClause"/>
+	</select>
+
+</mapper>

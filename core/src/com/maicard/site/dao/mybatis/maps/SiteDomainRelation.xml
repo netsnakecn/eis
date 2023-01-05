@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:59:08 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.site.dao.mapper.SiteDomainRelationMapper">
+
+	<resultMap id="siteDomainRelationResult" type="com.maicard.core.entity.SiteDomainRelation">
+		<result property="id" column="`id`"/>
+		<result property="siteCode" column="site_code"/>
+		<result property="domain" column="domain"/>
+		<result property="currentStatus" column="current_status"/>
+		<result property="ownerId" column="owner_id"/>
+	</resultMap>
+
+	<sql id="selectColumns">
+			`id`,
+			site_code,
+			domain,
+			current_status,
+			owner_id
+	</sql>
+	
+	<insert id="insert" parameterType="com.maicard.core.entity.SiteDomainRelation"  useGeneratedKeys="true"  keyProperty="id">
+		INSERT INTO site_domain_relation
+			(<if test="id>0">`id`,</if> owner_id, site_code, domain, current_status)
+		VALUES
+			(<if test="id>0">#{id},</if> #{ownerId}, #{siteCode}, #{domain}, #{currentStatus})
+	</insert>
+
+	<update id="update" parameterType="com.maicard.core.entity.SiteDomainRelation">
+		UPDATE
+			site_domain_relation
+		SET
+			site_code = #{siteCode},
+			domain = #{domain},
+			current_status = #{currentStatus},
+			owner_id = #{ownerId}
+		WHERE
+			`id` = #{id}
+	</update>
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			site_domain_relation
+		WHERE
+			`id` = #{id}
+	</delete>
+	
+	<select id="select" parameterType="long" resultMap="siteDomainRelationResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			site_domain_relation
+		WHERE
+			`id` = #{id}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+
+			<if test="siteCode != null">
+				AND site_code=#{siteCode}
+			</if>
+			<if test="domain != null">
+				AND domain=#{domain}
+			</if>
+			<if test="ownerId > 0">
+				AND owner_id = #{ownerId}
+			</if>
+			<if test="id > 0">
+				AND `id` = #{id}
+			</if>
+		</where>
+	</sql>
+	
+	<select id="listPk" parameterType="java.util.Map" resultType="long">
+		SELECT
+			`id`
+		FROM
+			site_domain_relation
+		<include refid="criteriaWhereClause"/>
+	</select>
+
+	<select id="list" parameterType="java.util.Map" resultMap="siteDomainRelationResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			site_domain_relation
+		<include refid="criteriaWhereClause"/>
+	</select>	
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			site_domain_relation 
+		<include refid="criteriaWhereClause"/>
+	</select>
+
+</mapper>

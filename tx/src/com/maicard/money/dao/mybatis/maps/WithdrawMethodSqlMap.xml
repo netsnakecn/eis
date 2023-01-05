@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:54:01 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.money.dao.mapper.WithdrawMethodMapper">
+
+	<resultMap id="withdrawMethodResult" type="com.maicard.money.entity.WithdrawMethod">
+		<result property="id" column="id"/>
+		<result property="channelId" column="channel_id"/>
+		<result property="name" column="name"/>
+		<result property="validTimeRange" column="valid_time_range"/>
+		<result property="currentStatus" column="current_status"/>
+		<result property="processClass" column="process_class"/>
+		<result property="withdrawTypeId" column="withdraw_type_id"/>
+		<result property="referUuid" column="refer_uuid"/>
+		<result property="weight" column="weight"/>
+		<result property="percent" column="percent"/>
+		<result property="commission" column="commission"/>
+		<result property="commissionType" column="commission_type"/>
+		<result property="referUuid" column="refer_uuid"/>
+		<result property="data" column="data" javaType="HashMap" jdbcType="VARCHAR" typeHandler="com.maicard.th.TextHashMapTypeHandler"/>
+		<result property="ownerId" column="owner_id"/>
+		<result property="version" column="version"/>
+		<result property="currency" column="currency"/>
+	</resultMap>
+
+	<sql id="selectColumns">
+		id,
+		channel_id,
+		name,
+		valid_time_range,
+		current_status,
+		process_class,
+		id,
+		withdraw_type_id,
+		refer_uuid,
+		weight,
+		percent,
+		commission,
+		commission_type,
+		refer_uuid,
+		`data`,
+		currency,
+		owner_id,
+		version
+	</sql>
+
+	<insert id="insert" parameterType="com.maicard.money.entity.WithdrawMethod" useGeneratedKeys="true"  keyProperty="id">
+		INSERT INTO withdraw_method
+		(<if test="id>0">id,</if>owner_id, channel_id, name, valid_time_range, current_status, process_class, withdraw_type_id, refer_uuid, weight, percent, commission, commission_type,  data,currency)
+		VALUES
+		(<if test="id>0">#{id},</if>#{ownerId}, #{channelId}, #{name}, #{validTimeRange}, #{currentStatus}, #{processClass}, #{withdrawTypeId}, #{referUuid}, #{weight}, #{percent}, #{commission}, #{commissionType}, #{data, javaType=HashMap, jdbcType=VARCHAR , typeHandler=com.maicard.th.TextHashMapTypeHandler}, #{currency})
+	</insert>
+
+	<update id="update" parameterType="com.maicard.money.entity.WithdrawMethod">
+		UPDATE
+		withdraw_method
+		SET
+		channel_id = #{channelId},
+		name = #{name},
+		valid_time_range = #{validTimeRange},
+		current_status = #{currentStatus},
+		process_class = #{processClass},
+		withdraw_type_id = #{withdrawTypeId},
+		weight = #{weight},
+		percent = #{percent},
+		commission = #{commission},
+		commission_type = #{commissionType},
+		refer_uuid = #{referUuid},
+		data = #{data,javaType=HashMap, jdbcType=VARCHAR , typeHandler=com.maicard.th.TextHashMapTypeHandler},
+		owner_id = #{ownerId},
+		`version` = #{version},
+		currency = #{currency}
+		WHERE
+		id = #{id}
+		AND `version` &lt; #{version}
+	</update>
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+		withdraw_method
+		WHERE
+		id = #{id}
+	</delete>
+
+	<select id="select" parameterType="long" resultMap="withdrawMethodResult">
+		SELECT
+		<include refid="selectColumns"/>
+		FROM
+		withdraw_method
+		WHERE
+		id = #{id}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+			<if test="currentStatus != null and currentStatus.length &gt; 0">
+				current_status in
+				<foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="withdrawTypeId > 0">
+				AND withdraw_type_id = #{withdrawTypeId}
+			</if>
+			<if test="referUuid > 0">
+				AND refer_uuid = #{referUuid}
+			</if>
+			<if test="ownerId > 0">
+				AND owner_id = #{ownerId}
+			</if>
+			<if test="currency != null">
+				AND currency = #{currency}
+			</if>
+			<if test="id > 0">
+				AND `id` = #{id}
+			</if>
+		</where>
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="withdrawMethodResult">
+		SELECT
+		<include refid="selectColumns"/>
+		FROM
+		withdraw_method
+		<include refid="criteriaWhereClause"/>
+		ORDER BY
+		channel_id ASC, weight DESC, id ASC
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+		COUNT(*)
+		FROM
+		withdraw_method
+		<include refid="criteriaWhereClause"/>
+	</select>
+
+</mapper>

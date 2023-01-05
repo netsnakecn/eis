@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:54:02 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.money.dao.mapper.SettlementMapper">
+
+	<resultMap id="settlementResult" type="com.maicard.money.entity.Settlement">
+		<result property="billingUser" column="username"/>
+		<result property="id" column="id"/>
+		<result property="billingBeginTime" column="billing_begin_time"/>
+		<result property="billingEndTime" column="billing_end_time"/>
+		<result property="billingHandlerTime" column="billing_handler_time"/>
+		<result property="uuid" column="uuid"/>
+		<result property="tradeMoney" column="trade_money"/>
+		<result property="tradeCount" column="trade_count"/>
+		<result property="totalMoney" column="total_money"/>
+		<result property="totalCount" column="total_count"/>
+		<result property="commission" column="commission"/>
+		<result property="settlementMoney" column="settlement_money"/>
+		<result property="objectType" column="object_type"/>
+		<result property="objectId" column="object_id"/>
+		<result property="sharePercent" column="share_percent"/>
+		<result property="currentStatus" column="current_status"/>
+		<result property="ownerId" column="owner_id"/>
+	</resultMap>
+
+	<insert id="insert" parameterType="map" useGeneratedKeys="true"  keyProperty="id" >
+	
+	CALL insert_settlement(#{uuid},#{commission},#{billingBeginTime},#{billingEndTime})
+		
+	</insert>
+
+	<update id="update" parameterType="map">
+		UPDATE
+			settlement
+		SET
+			billing_begin_time = #{billingBeginTime},
+			billing_end_time = #{billingEndTime},
+			billing_handler_time = #{billingHandlerTime},
+			uuid = #{uuid},
+			trade_money = #{faceMoney},
+			commission = #{commission},
+	        share_percent= #{sharePercent},
+			settlement_money = #{realMoney},	
+			object_type = #{objectType},
+			object_id = #{objectId},
+			current_status = #{currentStatus},
+			owner_id = #{ownerId}					
+		WHERE
+			id = #{id}
+			
+	</update>
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			settlement
+		WHERE
+			id = #{id}
+	</delete>
+	
+	<select id="select" parameterType="long" resultMap="settlementResult">
+		SELECT
+			id,
+			billing_begin_time, billing_end_time, billing_handler_time, uuid, trade_money,commission, share_percent,settlement_money,object_type,object_id	
+		FROM
+			settlement
+		WHERE
+			id = #{id}
+	</select>
+
+	<sql id="recentcriteriaWhereClause">
+		<where>
+		 	<if test="billingBeginTime != null">
+				AND billing_begin_time &gt;=#{billingBeginTime}
+	  		</if>
+	  		<if test="billingEndTime != null">
+				AND billing_end_time &lt;=#{billingEndTime}
+	  		</if>
+	  		<if test="uuid != null">
+	  			AND uuid in (<foreach item="item" index="index" collection="uuid"
+				      separator="," close=")">
+				        #{item}
+				  	</foreach>	
+			</if>
+			<if test="ownerId > 0">
+				AND owner_id = #{ownerId}
+			</if>
+		</where>
+	</sql>
+	
+	<sql id="criteriaWhereClause">
+		<where>
+	
+		
+		 	<if test="billingBeginTime != null">
+			
+			AND billing_begin_time &gt;=#{billingBeginTime}
+						
+	  		</if>
+	  		 		
+	  		<if test="billingEndTime != null">
+			
+			AND billing_end_time &lt;=#{billingEndTime}
+						
+	  		</if>
+	  		<if test="uuid != null">
+	  	AND a.uuid in (<foreach item="item" index="index" collection="uuid"
+				      separator="," close=")">
+				        #{item}
+				  	</foreach>	
+	  		
+			</if>
+			<if test="ownerId > 0">
+				AND owner_id = #{ownerId}
+			</if>
+			<if test="id > 0">
+				AND `id` = #{id}
+			</if>
+		</where>
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="settlementResult">
+	SELECT CONCAT(partner.`username`,'[',CAST(partner.`uuid` AS CHAR),']') billingUser,id, billing_begin_time, billing_end_time, billing_handler_time,
+	settlement.UUID,trade_count,total_money,total_count,trade_money,commission,share_percent, settlement_money,object_type,object_id,settlement.current_status
+ FROM settlement inner join partner on settlement.uuid=partner.uuid 
+	 	<if test="billingBeginTime != null">			
+			AND settlement.billing_begin_time &gt;=#{billingBeginTime}						
+   		</if>
+  		<if test="billingEndTime != null">
+			AND settlement.billing_end_time &lt;=#{billingEndTime}
+  		</if>
+		<if test="uuid != null">
+	  	  AND settlement.uuid in (<foreach item="item" index="index" collection="uuid"
+				      separator="," close=")">
+				        #{item}
+				  	</foreach>	
+		</if>
+		<if test="ownerId > 0">
+				AND owner_id = #{ownerId}
+		</if>
+		ORDER BY id DESC 
+	</select>
+	<select id="listRecentBilling" parameterType="map" resultMap="settlementResult">
+		SELECT 
+b.username,a.id,a.billing_begin_time, a.billing_end_time, a.billing_handler_time, b.uuid, a.trade_money,a.commission,a.share_percent, a.settlement_money,a.object_type,a.object_id
+
+FROM partner AS b RIGHT JOIN settlement AS a  ON b.uuid=a.uuid  <include refid="criteriaWhereClause"/> ORDER BY a.billing_handler_time DESC
+		
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			settlement
+		<include refid="recentcriteriaWhereClause"/>
+	
+		ORDER BY
+			id ASC
+	</select>
+	<select id="countrecentbilling" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+	
+		FROM partner AS b RIGHT JOIN settlement AS a  ON b.uuid=a.uuid  <include refid="criteriaWhereClause"/> ORDER BY a.billing_handler_time DESC
+		
+	</select>
+
+</mapper>

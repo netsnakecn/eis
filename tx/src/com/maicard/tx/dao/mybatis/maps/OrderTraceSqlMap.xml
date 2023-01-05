@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.tx.dao.mapper.OrderTraceMapper">
+	<resultMap id="orderTraceResult" type="com.maicard.tx.entity.OrderTrace">
+		<result property="id" column="id" />
+		<result property="orderId" column="order_id" />
+		<result property="operator" column="operator" />
+		<result property="createTime" column="create_time" />
+		<result property="content" column="content" />
+		<result property="currentStatus" column="current_status" />
+		<result property="finishTime" column="finish_time" />
+		<result property="operateType" column="operate_type" />
+		<result property="data" column="data" javaType="HashMap" jdbcType="VARCHAR" typeHandler="com.maicard.th.TextHashMapTypeHandler"/>
+		<result property="ownerId" column="owner_id"/>
+	</resultMap>
+
+	<insert id="insert" parameterType="com.maicard.tx.entity.OrderTrace" useGeneratedKeys="true"
+		keyProperty="id">
+		INSERT INTO order_trace
+		(
+		<if test="id>0">id,</if>
+		order_id, owner_id, create_time,
+		  content, current_status, finish_time,
+		operate_type, data,operator)
+		VALUES
+		(
+		<if test="id>0">#{id},</if>
+	    #{orderId}, #{ownerId},  #{createTime},
+		 #{content}, #{currentStatus},
+		#{finishTime}, #{operateType},   #{data, javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler},#{operator})
+	</insert>
+
+	<sql id="selectColumns">
+		id,
+		order_id,
+		create_time,
+		content,
+		current_status,
+		finish_time,
+		operate_type,
+		data,
+		operator,
+		owner_id
+	</sql>
+
+	<update id="update" parameterType="com.maicard.tx.entity.OrderTrace">
+		UPDATE
+			order_trace
+		SET
+			order_id = #{orderId},
+			create_time = #{createTime},
+			content = #{content},
+			current_status = #{currentStatus},
+			finish_time = #{finishTime}, 
+			operate_type = #{operateType},
+			data = #{data,javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler},
+			operator = #{operator},
+			owner_id = #{ownerId}
+		WHERE
+			id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			order_trace
+		WHERE
+			id = #{id}
+	</delete>
+
+	<select id="select" parameterType="long" resultMap="orderTraceResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			order_trace
+		WHERE
+			id = #{id}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+			<if test="orderId > 0">
+				order_id=#{orderId}
+			</if>
+			<if test="operator != null">
+				AND operator=#{operator}
+			</if>
+			<if test="createTimeBegin != null">
+				AND create_time &gt;=#{createTimeBegin}
+			</if>
+			<if test="createTimeEnd != null">
+				AND create_time &lt;=#{createTimeEnd}
+			</if>
+			<if test="finishTimeBegin != null">
+				AND finish_time &gt;=#{finishTimeBegin}
+			</if>
+			<if test="finishTimeEnd != null">
+				AND finish_time &lt;=#{finishTimeEnd}
+			</if>
+			<if test="id > 0">
+				AND `id` = #{id}
+			</if>
+			<if test="currentStatus != null">
+				AND current_status in
+				<foreach item="item" collection="currentStatus" open="("
+					separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="ownerId > 0">
+				AND owner_id = #{ownerId}
+			</if>
+		</where>
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="orderTraceResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+		order_trace
+			<include refid="criteriaWhereClause" />
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			order_trace
+		<include refid="criteriaWhereClause" />
+	</select>
+
+</mapper>

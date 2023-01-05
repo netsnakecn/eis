@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:57:45 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.security.dao.mapper.PartnerPrivilegeRoleRelationMapper">
+
+	<resultMap id="partnerPrivilegeRoleRelationResult" type="com.maicard.security.entity.PrivilegeRoleRelation">
+		<result property="id" column="id"/>
+		<result property="privilegeId" column="privilege_id"/>
+		<result property="roleId" column="role_id"/>
+	</resultMap>
+
+	<insert id="insert" parameterType="com.maicard.security.entity.PrivilegeRoleRelation">
+		INSERT INTO partner_privilege_role_relation
+			( privilege_id, role_id)
+		VALUES
+			( #{privilegeId}, #{roleId})
+	</insert>
+
+	<update id="update" parameterType="com.maicard.security.entity.PrivilegeRoleRelation">
+		UPDATE
+			partner_privilege_role_relation
+		SET
+			privilege_id = #{privilegeId},
+			role_id = #{roleId} 
+		WHERE
+			id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			partner_privilege_role_relation
+		WHERE
+			id = #{id}
+	</delete>
+	
+	<select id="select" parameterType="long" resultMap="partnerPrivilegeRoleRelationResult">
+		SELECT
+			id,
+			privilege_id,
+			role_id 
+		FROM
+			partner_privilege_role_relation
+		WHERE
+			id = #{id}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+			 
+			<if test="@com.maicard.misc.Ognl@isNotZero(privilegeId)">
+				privilege_id=#{privilegeId}
+			</if>
+			<if test="@com.maicard.misc.Ognl@isNotZero(roleId)">
+				AND role_id=#{roleId}
+			</if>
+			
+		</where>
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="partnerPrivilegeRoleRelationResult">
+		SELECT
+			id,
+			privilege_id,
+			role_id 
+		FROM
+			partner_privilege_role_relation
+		<include refid="criteriaWhereClause"/> 
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			partner_privilege_role_relation
+		<include refid="criteriaWhereClause"/>
+	</select>
+	
+	<delete id="deleteBy" parameterType="map">
+		DELETE FROM
+			partner_privilege_role_relation
+		<include refid="criteriaWhereClause"/>
+
+	</delete>
+
+</mapper>

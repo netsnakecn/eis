@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:54:02 CST 2013 -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.money.dao.mapper.BillingMapper">
+
+	<resultMap id="billingResult" type="com.maicard.money.entity.Billing">
+		<result property="billingUser" column="username" />
+		<result property="id" column="id" />
+		<result property="billingBeginTime" column="billing_begin_time" />
+		<result property="billingEndTime" column="billing_end_time" />
+		<result property="createTime" column="create_time" />
+		<result property="billingHandlerTime" column="billing_handler_time" />
+		<result property="uuid" column="uuid" />
+		<result property="billingKey" column="billing_key" />
+		<result property="faceMoney" column="face_money" />
+		<result property="commission" column="commission" />
+		<result property="realMoney" column="real_money" />
+		<result property="arriveMoney" column="arrive_money" />
+		<result property="beginBalance" column="begin_balance" />
+		<result property="objectType" column="object_type" />
+		<result property="objectId" column="object_id" />
+		<result property="operator" column="operator" />
+		<result property="shareConfigId" column="share_config_id" />
+		<result property="currentStatus" column="current_status" />
+		<result property="data" column="data" javaType="HashMap" jdbcType="VARCHAR" typeHandler="com.maicard.th.TextHashMapTypeHandler" />
+		<result property="ownerId" column="owner_id" />
+		<result column="clear_status" property="clearStatus" jdbcType="VARCHAR"/>
+		<result column="clear_way" property="clearWay" jdbcType="VARCHAR"/>
+		<result column="clear_type" property="clearType" jdbcType="VARCHAR"/>
+		<result column="state_status" property="stateStatus" jdbcType="VARCHAR"/>
+
+	</resultMap>
+
+	<insert id="insert" parameterType="com.maicard.money.entity.Billing" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO billing
+		(
+		<if test="id">id,</if>
+		owner_id, billing_begin_time, billing_end_time, create_time, billing_handler_time, uuid, billing_key, face_money,commission, real_money, arrive_money, begin_balance,
+		object_type, object_id, operator, data, share_config_id, current_status,clear_status,clear_way,clear_type,state_status)
+		VALUES
+		(
+		<if test="id">#{id},</if>
+		#{ownerId}, #{billingBeginTime}, #{billingEndTime}, #{createTime}, #{billingHandlerTime}, #{uuid}, #{billingKey}, #{faceMoney}, #{commission} , #{realMoney}, #{arriveMoney},
+		#{beginBalance}, #{objectType}, #{objectId}, #{operator}, #{data, javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler}, #{shareConfigId}, #{currentStatus}, #{clearStatus}, #{clearWay}, #{clearType}, #{stateStatus})
+	</insert>
+
+	<update id="update" parameterType="com.maicard.money.entity.Billing">
+		UPDATE
+			billing
+		SET
+			billing_begin_time = #{billingBeginTime},
+			billing_end_time = #{billingEndTime}, 
+			billing_handler_time = #{billingHandlerTime}, 
+			uuid = #{uuid}, billing_key = #{billingKey}, face_money = #{faceMoney}, commission = #{commission},
+			real_money = #{realMoney}, arrive_money = #{arriveMoney}, begin_balance = #{beginBalance},
+			object_type = #{objectType}, object_id = #{objectId}, data = #{data,javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler}, operator = #{operator},
+			owner_id = #{ownerId},
+			share_config_id = #{shareConfigId},
+			current_status = #{currentStatus},
+			clear_status = #{clearStatus},
+			state_status = #{stateStatus}
+		WHERE
+			id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			billing
+		WHERE
+		id = #{id}
+	</delete>
+
+	<sql id="selectColumns">
+		id,
+		billing_begin_time,
+		billing_end_time,
+		create_time,
+		billing_handler_time,
+		uuid,
+		billing_key,
+		face_money,
+		commission,
+		real_money,
+		arrive_money,
+		begin_balance,
+		object_type,
+		object_id,
+		operator,
+		`data`,
+		share_config_id,
+		current_status,
+		owner_id,
+		clear_status,
+		clear_way,
+		clear_type,
+		state_status
+	</sql>
+
+	<select id="select" parameterType="long" resultMap="billingResult">
+		SELECT
+		<include refid="selectColumns" />
+		FROM
+		billing
+		WHERE
+		id = #{id}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+			<if test="currentStatus != null and currentStatus.length &gt; 0">
+				current_status in
+				<foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="inviters != null and inviters.length > 0">
+				AND uuid in
+				<foreach item="item" collection="inviters" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="billingKey != null">
+				AND billing_key=#{billingKey}
+			</if>
+			<if test="objectType != null">
+				AND object_type=#{objectType}
+			</if>
+			<if test="uuid > 0">
+				AND uuid=#{uuid}
+			</if>
+
+			<if test="objectId > 0">
+				AND object_id=#{objectId}
+			</if>
+			<if test="shareConfigId > 0">
+				AND share_config_id=#{shareConfigId}
+			</if>
+			<if test="ownerId > 0">
+				AND owner_id = #{ownerId}
+			</if>
+			<if test="billingBeginTimeBegin != null">
+				AND billing_begin_time &gt;=#{billingBeginTimeBegin}
+			</if>
+			<if test="billingBeginTimeEnd != null">
+				AND billing_begin_time &lt;=#{billingBeginTimeEnd}
+			</if>
+			<if test="billingEndTimeBegin != null">
+				AND billing_end_time &gt;=#{billingEndTimeBegin}
+			</if>
+			<if test="billingEndTimeEnd != null">
+				AND billing_end_time &lt;=#{billingEndTimeEnd}
+			</if>
+			<if test="clearStatus != null">
+				AND clear_status =#{clearStatus}
+			</if>
+			<if test="stateStatus != null">
+				AND state_status = #{stateStatus}
+			</if>
+			<if test="id > 0">
+				AND `id` = #{id}
+			</if>
+		</where>
+	</sql>
+	
+
+	<select id="list" parameterType="map" resultMap="billingResult">
+		SELECT
+		<include refid="selectColumns" />
+		FROM
+		billing
+		<include refid="criteriaWhereClause" />
+		ORDER BY
+		create_time DESC
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+		COUNT(*)
+		FROM
+		billing
+		<include refid="criteriaWhereClause" />
+	</select>
+	
+
+	<update id="billing" parameterType="com.maicard.money.entity.Billing">
+		CALL create_billing(#{id} ,#{uuid} ,#{billingBeginTime} ,#{billingEndTime}, #{objectId}, #{shareConfigId})
+	</update>
+
+</mapper>

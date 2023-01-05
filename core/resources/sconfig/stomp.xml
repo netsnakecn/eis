@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:websocket="http://www.springframework.org/schema/websocket"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket.xsd
+	">
+	<!-- Spring STOMP config file, NetSNake, 2016-11-13 -->
+	
+		<!--<bean id="eisStompHandshakeHandler" class="com.maicard.mb.service.websocket.EisStompHandshakeHandler" />
+		<bean id="eisWebSocketHandShakeInterceptor" class="com.maicard.mb.service.websocket.EisWebSocketHandShakeInterceptor" />
+		-->
+	
+	<websocket:message-broker  application-destination-prefix="/app">  
+			<!-- Performance -->
+			<websocket:transport send-timeout="2000" send-buffer-size="2097512" />
+			
+
+
+			<websocket:stomp-endpoint path="/ws" allowed-origins="*">  
+				<websocket:handshake-handler ref="eisStompHandshakeHandler"/>
+				<websocket:handshake-interceptors>
+					<ref bean="eisWebSocketHandShakeInterceptor"/>
+				</websocket:handshake-interceptors>
+				<websocket:sockjs /> 
+			</websocket:stomp-endpoint>  
+			
+			<!-- Simple broker, for test. -->
+			<!-- <websocket:simple-broker prefix="/topic,/queue" /> -->
+	  
+			<!-- To use RabbitMQ stomp broker relay, RabbitMQ must install and enable stomp plugins, default listen on 61613, NetSnake,2016-11-13 -->
+			<websocket:stomp-broker-relay prefix="/topic,/queue"  
+				relay-host="${amqpHost}" relay-port="61613" 
+				system-login="${amqpUsername}" system-passcode="${amqpPassword}"
+				client-login="${amqpUsername}" client-passcode="${amqpPassword}"
+				heartbeat-receive-interval="20000"  heartbeat-send-interval="20000"
+			/> 
+			
+	</websocket:message-broker>  
+
+</beans>

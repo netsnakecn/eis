@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:57:27 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.security.dao.mapper.FrontUserMapper">
+
+    <resultMap id="frontUserResult" type="com.maicard.security.entity.User">
+        <result property="id" column="uuid"/>
+        <result property="uuid" column="uuid"/>
+        <result property="userTypeId" column="user_type_id"/>
+        <result property="userExtraTypeId" column="user_extra_type_id"/>
+        <result property="username" column="username"/>
+        <result property="gender" column="gender"/>
+        <result property="userPassword" column="user_password"/>
+        <result property="authType" column="auth_type"/>
+        <result property="createTime" column="create_time"/>
+        <result property="lastLoginTimestamp" column="last_login_timestamp"/>
+        <result property="lastLoginIp" column="last_login_ip"/>
+        <result property="nickName" column="nick_name"/>
+        <result property="parentUuid" column="parent_uuid"/>
+        <result property="headUuid" column="head_uuid"/>
+        <result property="level" column="level"/>
+        <result property="roles" column="roles" javaType="List" jdbcType="VARCHAR"
+                typeHandler="com.maicard.th.JsonArrayTypeHandler"/>
+        <result property="inviter" column="inviter"/>
+        <result property="currentStatus" column="current_status"/>
+        <result property="extraStatus" column="extra_status"/>
+        <result property="avatar" column="avatar"/>
+        <result property="email" column="email"/>
+        <result property="phone" column="phone"/>
+        <result property="country" column="country"/>
+        <result property="province" column="province"/>
+        <result property="city" column="city"/>
+        <result property="district" column="district"/>
+        <result property="street" column="street"/>
+        <result property="authKey" column="auth_key"/>
+        <result property="data" column="data" javaType="HashMap" jdbcType="VARCHAR"
+                typeHandler="com.maicard.th.TextHashMapTypeHandler"/>
+        <result property="memory" column="memory"/>
+        <result property="ownerId" column="owner_id"/>
+    </resultMap>
+
+
+    <sql id="selectColumns">
+        a.uuid,
+        a.user_type_id,
+        a.user_extra_type_id,
+        a.username,
+        a.gender,
+        a.user_password,
+        a.auth_type,
+        a.create_time,
+        a.last_login_timestamp,
+        a.last_login_ip,
+        a.nick_name,
+        a.parent_uuid,
+        a.head_uuid,
+        a.inviter,
+        a.level,
+        a.roles,
+        a.current_status,
+        a.extra_status,
+        a.auth_key,
+        a.data,
+        a.memory,
+        a.email,
+        a.phone,
+        a.avatar,
+        a.country,
+        a.province,
+        a.city,
+        a.district,
+        a.street,
+        a.owner_id
+
+    </sql>
+
+
+    <insert id="insert" parameterType="com.maicard.security.entity.User" useGeneratedKeys="true" keyProperty="uuid">
+        insert INTO front_user
+        (<if test="uuid > 0">uuid,</if> owner_id, username, gender, user_password, user_type_id, user_extra_type_id,
+        auth_type, current_status, extra_status, create_time, last_login_timestamp, last_login_ip,<if
+            test="nickName!=null">nick_name,</if>parent_uuid, head_uuid, level, roles, inviter, auth_key, `data`,
+        memory, avatar, email, phone, country, province, city, district, street)
+        VALUES
+        (<if test="uuid > 0">#{uuid},</if> #{ownerId}, #{username}, #{gender}, #{userPassword}, #{userTypeId},
+        #{userExtraTypeId}, #{authType}, #{currentStatus}, #{extraStatus}, #{createTime}, #{lastLoginTimestamp},
+        #{lastLoginIp},<if test="nickName!=null">#{nickName},</if>#{parentUuid}, #{headUuid}, #{level},
+        #{roles, javaType=List, jdbcType=VARCHAR, typeHandler=com.maicard.th.JsonArrayTypeHandler}, #{inviter},
+        #{authKey}, #{data, javaType=HashMap, jdbcType=VARCHAR,typeHandler=com.maicard.th.TextHashMapTypeHandler},
+        #{memory}, #{avatar}, #{email}, #{phone}, #{country}, #{province}, #{city}, #{district}, #{street})
+    </insert>
+
+
+    <update id="update" parameterType="com.maicard.security.entity.User">
+        UPDATE
+        front_user
+        SET
+        user_type_id = #{userTypeId},
+        user_extra_type_id = #{userExtraTypeId},
+        username = #{username},
+        gender = #{gender},
+        user_password = #{userPassword},
+        auth_type = #{authType},
+        current_status = #{currentStatus},
+        extra_status = #{extraStatus},
+        last_login_timestamp = #{lastLoginTimestamp},
+        last_login_ip = #{lastLoginIp},
+        owner_id = #{ownerId},
+
+        <if test="nickName!=null">
+            nick_name = #{nickName},
+        </if>
+        parent_uuid = #{parentUuid},
+        head_uuid = #{headUuid},
+        <if test="authKey!=null">
+            auth_key = #{authKey},
+        </if>
+        memory = #{memory},
+        <if test="inviter > 0">
+            inviter = #{inviter},
+        </if>
+        <if test="data != null and data.size() > 0">
+            data = #{data,javaType=HashMap, jdbcType=VARCHAR,typeHandler=com.maicard.th.TextHashMapTypeHandler},
+        </if>
+        avatar = #{avatar},
+        email = #{email},
+        phone = #{phone},
+        country = #{country},
+        province = #{province},
+        city = #{city},
+        street = #{street},
+        level = #{level},
+        roles = #{roles, javaType=List, jdbcType=VARCHAR, typeHandler=com.maicard.th.JsonArrayTypeHandler}
+
+        WHERE
+        uuid = #{uuid}
+        <if test="lockStatus > 0">
+            AND current_status = #{lockStatus}
+        </if>
+    </update>
+
+
+    <sql id="rowLimit">
+        <if test="limits &gt; 0">
+            LIMIT
+            #{starts, jdbcType=BIGINT},
+            #{limits, jdbcType=BIGINT}
+        </if>
+    </sql>
+
+
+    <delete id="delete" parameterType="long">
+        DELETE FROM
+        front_user
+        WHERE
+        uuid = #{uuid}
+    </delete>
+
+    <select id="select" parameterType="long" resultMap="frontUserResult">
+        SELECT
+        <include refid="selectColumns"/>
+        FROM
+        front_user as a
+        WHERE
+        a.uuid = #{uuid}
+    </select>
+
+    <sql id="criteriaWhereClause">
+        <where>
+            a.user_type_id=121003
+            <if test="@com.maicard.misc.Ognl@isNotZero(userExtraTypeId)">
+                AND a.user_extra_type_id=#{userExtraTypeId}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(username)">
+                AND a.username=#{username}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(nickName)">
+                AND a.nick_name=#{nickName}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(userPassword)">
+                AND a.user_password=#{userPassword}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(authKey)">
+                AND a.auth_key=#{authKey}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(q)">
+                AND (
+                a.nick_name LIKE concat('%', '${q}', '%')
+                OR
+                a.username LIKE concat('%', '${q}', '%')
+                )
+            </if>
+            <if test="@com.maicard.misc.Ognl@isValueArray(currentStatus)">
+                AND a.current_status in
+                <foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotZero(parentUuid)">
+                AND a.inviter in (#{parentUuid}
+                <if test="subUserList != null">
+                    <foreach item="item" collection="subUserList" open="," separator="," close="">
+                        #{item.uuid}
+                    </foreach>
+                </if>
+                )
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotZero(headUuid)">
+                AND a.head_uuid=#{headUuid}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isValueArray(inviters)">
+                AND a.inviter in
+                <foreach item="item" collection="inviters" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotZero(uuid)">
+                AND a.uuid=#{uuid}
+            </if>
+            <if test="id > 0">
+                AND a.uuid=#{id}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(likeUserName)">
+                AND ( a.username LIKE concat("%",#{likeUserName},"%") OR a.nick_name LIKE
+                concat("%",#{likeUserName},"%") )
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(createTimeBegin)">
+                AND a.create_time &gt;= #{createTimeBegin}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(createTimeEnd)">
+                AND a.create_time &lt;= #{createTimeEnd}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(email)">
+                AND a.email = #{email}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(roles)">
+                AND JSON_CONTAINS(a.roles, JSON_ARRAY(#{roles}))
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(phone)">
+                AND a.phone = #{phone}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(country)">
+                AND a.country = #{country}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(province)">
+                AND a.province &lt;= #{province}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(city)">
+                AND a.city like concat("%",#{city},"#")
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(district)">
+                AND a.district &lt;= #{district}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(street)">
+                AND a.street &lt;= #{street}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotZero(ownerId)">
+                AND a.owner_id = #{ownerId}
+            </if>
+        </where>
+    </sql>
+    <sql id="criteriaWhereClause1">
+        <if test="@com.maicard.misc.Ognl@isValueArray(uuids)">
+            AND a.uuid in
+            <foreach item="item" collection="uuids" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="@com.maicard.misc.Ognl@isNotEmpty(usernames)">
+            AND a.username in
+            <foreach item="item" collection="usernames" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </sql>
+
+    <select id="list" parameterType="map" resultMap="frontUserResult">
+        SELECT
+        <include refid="selectColumns"/>
+        FROM
+        front_user as a <!-- LEFT JOIN partner as d on a.inviter=d.uuid
+			LEFT JOIN user_type as b on a.user_type_id = b.user_type_id and a.user_extra_type_id=b.user_extra_type_id
+			LEFT JOIN user_level_project AS c ON a.level=c.user_level_id -->
+        <include refid="criteriaWhereClause"/>
+        <include refid="criteriaWhereClause1"/>
+        <if test="orderBy != null">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="orderBy == null">
+            ORDER BY
+            a.create_time DESC, a.uuid DESC
+        </if>
+        <include refid="rowLimit"/>
+    </select>
+
+    <select id="listPk" parameterType="map" resultType="long">
+        SELECT
+        a.uuid
+        FROM
+        front_user as a <!-- LEFT JOIN partner as d on a.inviter=d.uuid
+			LEFT JOIN user_type as b on a.user_type_id = b.user_type_id and a.user_extra_type_id=b.user_extra_type_id
+			LEFT JOIN user_level_project AS c ON a.level=c.user_level_id  -->
+        <include refid="criteriaWhereClause"/>
+        <include refid="criteriaWhereClause1"/>
+        <if test="orderBy != null">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="orderBy == null">
+            ORDER BY
+            a.create_time DESC, a.uuid DESC
+        </if>
+        <include refid="rowLimit"/>
+    </select>
+    <select id="listByPrepayment" parameterType="long" resultMap="frontUserResult">
+        SELECT
+        a.uuid,
+        a.user_type_id,
+        a.user_extra_type_id,
+        a.username,
+        a.gender,
+        a.user_password,
+        a.auth_type,
+        a.create_time,
+        a.last_login_timestamp,
+        a.last_login_ip,
+        a.nick_name,
+        a.parent_uuid,
+        a.inviter,
+        a.level,
+        a.current_status,
+        a.extra_status,
+        a.auth_key,
+        a.memory,
+        a.owner_id
+        FROM partner a WHERE UUID NOT IN (SELECT UUID FROM user_data_all WHERE data_define_id=259)
+        <if test="_parameter> 0">
+            and
+            a.uuid=#{_parameter}
+        </if>
+    </select>
+
+
+    <select id="count" parameterType="map" resultType="int">
+        SELECT
+        COUNT(*)
+        FROM
+        front_user as a
+        <include refid="criteriaWhereClause"/>
+    </select>
+
+</mapper>

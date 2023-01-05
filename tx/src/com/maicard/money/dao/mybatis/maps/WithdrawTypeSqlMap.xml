@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:54:01 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.money.dao.mapper.WithdrawTypeMapper">
+
+    <resultMap id="withdrawTypeResult" type="com.maicard.money.entity.WithdrawType">
+        <result property="id" column="id"/>
+        <result property="withdrawTypeName" column="withdraw_type_name"/>
+        <result property="arrivePeriod" column="arrive_period"/>
+        <result property="withdrawBeginTime" column="withdraw_begin_time"/>
+        <result property="withdrawEndTime" column="withdraw_end_time"/>
+        <result property="maxWithdrawCountInPeriod" column="max_withdraw_count_in_period"/>
+        <result property="maxWithdrawAmountInPeriod" column="max_withdraw_amount_in_period"/>
+        <result property="maxWithdrawAmountPerCount" column="max_withdraw_amount_per_count"/>
+        <result property="minWithdrawAmountPerCount" column="min_withdraw_amount_per_count"/>
+        <result property="data" column="data" javaType="HashMap" jdbcType="VARCHAR"
+                typeHandler="com.maicard.th.TextHashMapTypeHandler"/>
+        <result property="currentStatus" column="current_status"/>
+        <result property="commission" column="commission"/>
+        <result property="commissionType" column="commission_type"/>
+        <result property="commissionChargeType" column="commission_charge_type"/>
+        <result property="currency" column="currency"/>
+        <result property="ownerId" column="owner_id"/>
+    </resultMap>
+
+    <sql id="selectColumns">
+        id,
+        withdraw_type_name,
+        arrive_period,
+        withdraw_begin_time,
+        withdraw_end_time,
+        max_withdraw_count_in_period,
+        max_withdraw_amount_in_period,
+        max_withdraw_amount_per_count,
+        min_withdraw_amount_per_count,
+        data,
+        current_status,
+        commission,
+        commission_type,
+        commission_charge_type,
+        currency,
+        owner_id
+    </sql>
+    <insert id="insert" parameterType="com.maicard.money.entity.WithdrawType" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO withdraw_type
+        (<if test="id>0">id,</if> owner_id, withdraw_type_name, arrive_period, withdraw_begin_time, withdraw_end_time,
+        max_withdraw_count_in_period, max_withdraw_amount_in_period, max_withdraw_amount_per_count,
+        min_withdraw_amount_per_count, data,current_status, commission, commission_type,
+        commission_charge_type,currency)
+        VALUES
+        (<if test="id>0">#{id},</if> #{ownerId}, #{withdrawTypeName}, #{arrivePeriod}, #{withdrawBeginTime},
+        #{withdrawEndTime}, #{maxWithdrawCountInPeriod}, #{maxWithdrawAmountInPeriod}, #{maxWithdrawAmountPerCount},
+        #{minWithdrawAmountPerCount},
+        #{data, javaType=HashMap, jdbcType=VARCHAR , typeHandler=com.maicard.th.TextHashMapTypeHandler},
+        #{currentStatus}, #{commission}, #{commissionType}, #{commissionChargeType},#{currency})
+    </insert>
+
+    <update id="update" parameterType="com.maicard.money.entity.WithdrawType">
+        UPDATE
+        withdraw_type
+        SET
+        withdraw_type_name = #{withdrawTypeName},
+        current_status = #{currentStatus},
+        arrive_period = #{arrivePeriod},
+        withdraw_begin_time = #{withdrawBeginTime},
+        withdraw_end_time = #{withdrawEndTime},
+        max_withdraw_count_in_period = #{maxWithdrawCountInPeriod},
+        max_withdraw_amount_in_period = #{maxWithdrawAmountInPeriod},
+        max_withdraw_amount_per_count = #{maxWithdrawAmountPerCount},
+        min_withdraw_amount_per_count = #{minWithdrawAmountPerCount},
+        data = #{data,javaType=HashMap, jdbcType=VARCHAR , typeHandler=com.maicard.th.TextHashMapTypeHandler},
+        commission = #{commission},
+        commission_type = #{commissionType},
+        commission_charge_type = #{commissionChargeType},
+        currency = #{currency},
+        owner_id = #{ownerId}
+        WHERE
+        id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="long">
+        DELETE FROM
+        withdraw_type
+        WHERE
+        id = #{id}
+    </delete>
+
+    <select id="select" parameterType="long" resultMap="withdrawTypeResult">
+        SELECT
+        <include refid="selectColumns"/>
+        FROM
+        withdraw_type
+        WHERE
+        id = #{id}
+    </select>
+
+    <sql id="criteriaWhereClause">
+        <where>
+            <if test="currentStatus != null">
+                current_status in
+                <foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="ownerId > 0">
+                AND owner_id = #{ownerId}
+            </if>
+            <if test="withdrawTypeName != null">
+                AND withdraw_type_name = #{withdrawTypeName}
+            </if>
+            <if test="id > 0">
+                AND `id` = #{id}
+            </if>
+        </where>
+    </sql>
+
+    <select id="list" parameterType="map" resultMap="withdrawTypeResult">
+        SELECT
+        <include refid="selectColumns"/>
+        FROM
+        withdraw_type
+        <include refid="criteriaWhereClause"/>
+        ORDER BY
+        id ASC
+    </select>
+
+    <select id="count" parameterType="map" resultType="int">
+        SELECT
+        COUNT(*)
+        FROM
+        withdraw_type
+        <include refid="criteriaWhereClause"/>
+    </select>
+
+</mapper>

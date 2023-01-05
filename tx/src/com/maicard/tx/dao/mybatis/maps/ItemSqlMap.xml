@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:55:34 CST 2013 -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.tx.dao.mapper.ItemMapper">
+
+	<resultMap id="itemResult" type="com.maicard.tx.entity.Item">
+		<result property="id" column="id" />
+		<result property="transactionTypeId" column="transaction_type_id" />
+		<result property="transactionId" column="transaction_id" />
+		<result property="inOrderId" column="in_order_id" />
+		<result property="outOrderId" column="out_order_id" />
+		<result property="name" column="name" />
+		<result property="content" column="content" />
+		<result property="productId" column="product_id" />
+		<result property="objectType" column="object_type" />
+		<result property="chargeFromAccount" column="charge_from_account" />
+		<result property="chargeToAccount" column="charge_to_account" />
+		<result property="fromAccountType" column="from_account_type" />
+		<result property="toAccountType" column="to_account_type" />
+		<result property="labelMoney" column="label_money" />
+		<result property="rate" column="rate" />
+		<result property="count" column="count" />
+		<result property="requestMoney" column="request_money" />
+		<result property="successMoney" column="success_money" />
+		<result property="frozenMoney" column="frozen_money" />
+		<result property="inMoney" column="in_money" />
+		<result property="inNotifyUrl" column="in_notify_url"/>
+		<result property="outMoney" column="out_money" />
+		<result property="enterTime" column="enter_time" />
+		<result property="ttl" column="ttl" />
+		<result property="maxRetry" column="max_retry" />
+		<result property="closeTime" column="close_time" />
+		<result property="currentStatus" column="current_status" />
+		<result property="extraStatus" column="extra_status" />
+		<result property="billingStatus" column="billing_status" />
+		<result property="outStatus" column="out_status" />
+		<result property="cartId" column="cart_id" />
+		<result property="lockId" column="lock_id" />
+		<result property="processCount" column="process_count" />
+		<result property="supplyPartnerId" column="supply_partner_id" />
+		<result property="data" column="data" javaType="HashMap" jdbcType="VARCHAR" typeHandler="com.maicard.th.TextHashMapTypeHandler"/>
+		<result property="weight" column="weight" />
+		<result property="lastEffect" column="last_effect" />
+		<result property="shareConfigId" column="share_config_id" />
+		<result property="price" column="price" javaType="com.maicard.money.entity.Price" jdbcType="VARCHAR" typeHandler="com.maicard.money.th.PriceJsonHandler"/>
+		<result property="inviter" column="inviter" />
+		<result property="ownerId" column="owner_id" />
+	</resultMap>
+	
+	<sql id="rowLimit">
+		<if test="limits &gt; 0">
+        LIMIT 
+            #{starts, jdbcType=BIGINT},
+      	 	#{limits, jdbcType=BIGINT}
+        </if>
+	</sql>
+	<insert id="insert" parameterType="com.maicard.tx.entity.Item" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO item
+		(
+		<if test="id > 0">id, </if>
+		owner_id, transaction_id, in_order_id, in_notify_url, out_order_id, transaction_type_id, name,
+		content, product_id, object_type, charge_from_account, charge_to_account, from_account_type, to_account_type,
+		label_money, rate, count, request_money, success_money, frozen_money, in_money, out_money,
+		enter_time, ttl, max_retry, close_time, current_status, extra_status, billing_status, out_status,
+		cart_id, lock_id, process_count,
+		supply_partner_id, data, weight, last_effect, share_config_id, price, inviter)
+		VALUES
+		(
+		<if test="id > 0">#{id}, </if>
+		#{ownerId}, #{transactionId}, #{inOrderId}, #{inNotifyUrl}, #{outOrderId}, #{transactionTypeId},#{name}, #{content}, #{productId}, #{objectType}, #{chargeFromAccount},#{chargeToAccount}, #{fromAccountType}, #{toAccountType},  #{labelMoney}, #{rate}, #{count}, #{requestMoney}, #{successMoney}, #{frozenMoney}, #{inMoney}, #{outMoney}, #{enterTime}, #{ttl}, #{maxRetry}, #{closeTime}, #{currentStatus}, #{extraStatus}, #{billingStatus}, #{outStatus}, #{cartId}, #{lockId}, #{processCount}, #{supplyPartnerId},#{data, javaType=HashMap, jdbcType=VARCHAR , typeHandler=com.maicard.th.TextHashMapTypeHandler},
+		#{weight}, #{lastEffect}, #{shareConfigId}, #{price, javaType=com.maicard.money.entity.Price, jdbcType=VARCHAR,  typeHandler=com.maicard.money.th.PriceJsonHandler}, #{inviter})
+	</insert>
+
+	<update id="update" parameterType="com.maicard.tx.entity.Item">
+		UPDATE item
+		SET
+		transaction_id = #{transactionId}, in_order_id = #{inOrderId}, out_order_id =
+		#{outOrderId}, in_notify_url = #{inNotifyUrl},
+		transaction_type_id = #{transactionTypeId},
+		`name` = #{name},
+		content = #{content},
+		product_id = #{productId},
+		object_type = #{objectType},
+		charge_from_account = #{chargeFromAccount},
+		charge_to_account = #{chargeToAccount},
+		from_account_type = #{fromAccountType},
+		to_account_type = #{toAccountType},
+		label_money = #{labelMoney},
+		rate = #{rate},
+		`count` = #{count},
+		request_money = #{requestMoney},
+		success_money = #{successMoney}, frozen_money =
+		#{frozenMoney}, in_money = #{inMoney}, out_money = #{outMoney},
+		enter_time = #{enterTime},
+		ttl = #{ttl}, max_retry = #{maxRetry},
+		close_time = #{closeTime},
+		current_status = #{currentStatus},
+		extra_status = #{extraStatus}, billing_status = #{billingStatus}, out_status = #{outStatus},
+		cart_id = #{cartId},
+		lock_id = #{lockId}, process_count = #{processCount},
+		supply_partner_id = #{supplyPartnerId}, data = #{data, javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler}, weight = #{weight},
+		last_effect = #{lastEffect}, share_config_id = #{shareConfigId}, price = #{price, javaType=com.maicard.money.entity.Price, jdbcType=VARCHAR,  typeHandler=com.maicard.money.th.PriceJsonHandler}, inviter = #{inviter},owner_id = #{ownerId}
+		WHERE
+		id = #{id}
+	</update>
+
+	<update id="updateNoNull" parameterType="com.maicard.tx.entity.Item">
+		UPDATE
+		item
+		<set>
+			<if test="transactionId != null">
+				transaction_id = #{transactionId},
+			</if>
+			<if test="inOrderId != null">
+				in_order_id = #{inOrderId},
+			</if>
+			<if test="inNotifyUrl != null">
+				in_notify_url = #{inNotifyUrl},
+			</if>
+			<if test="outOrderId != null">
+				out_order_id = #{outOrderId},
+			</if>
+			<if test="transactionTypeId > 0">
+				transaction_type_id = #{transactionTypeId},
+			</if>
+			<if test="name != null">
+				`name` = #{name},
+			</if>
+			<if test="content != null">
+				content = #{content},
+			</if>
+			<if test="objectType != null">
+				object_type = #{objectType},
+			</if>
+			<if test="productId > 0">
+				product_id = #{productId},
+			</if>
+			<if test="chargeFromAccount > 0">
+				charge_from_account = #{chargeFromAccount},
+			</if>
+			<if test="chargeToAccount > 0">
+				charge_to_account = #{chargeToAccount},
+			</if>
+			<if test="fromAccountType > 0">
+				from_account_type = #{fromAccountType},
+			</if>
+			<if test="toAccountType > 0">
+				to_account_type = #{toAccountType},
+			</if>
+			<if test="labelMoney > 0">
+				label_money = #{labelMoney},
+			</if>
+			<if test="rate > 0">
+				rate = #{rate},
+			</if>
+			<if test="count > 0">
+				`count` = #{count},
+			</if>
+			<if test="successMoney > 0">
+				success_money = #{successMoney},
+			</if>
+			<if test="frozenMoney > 0">
+				frozen_money = #{frozenMoney},
+			</if>
+			<if test="inMoney > 0">
+				in_money = #{inMoney},
+			</if>
+			<if test="outMoney > 0">
+				out_money = #{outMoney},
+			</if>
+			<if test="enterTime != null">
+				enter_time = #{enterTime},
+			</if>
+			<if test="ttl > 0">
+				`ttl` = #{ttl},
+			</if>
+			<if test="maxRetry > 0">
+				max_retry = #{maxRetry},
+			</if>
+			<if test="closeTime != null">
+				close_time = #{closeTime},
+			</if>
+			<if test="currentStatus > 0">
+				current_status = #{currentStatus},
+			</if>
+			<if test="extraStatus > 0">
+				extra_status = #{extraStatus},
+			</if>
+			<if test="billingStatus > 0">
+				billing_status = #{billingStatus},
+			</if>
+			<if test="outStatus > 0">
+				out_status = #{outStatus},
+			</if>
+			<if test="cartId > 0">
+				cart_id = #{cartId},
+			</if>
+			<if test="lockId != null">
+				lock_id = #{lockId},
+			</if>
+			<if test="processCount > 0">
+				process_count = #{processCount},
+			</if>
+			<if test="supplyPartnerId > 0">
+				supply_partner_id = #{supplyPartnerId},
+			</if>
+			<if test="data != null and data.size &gt; 0">
+				data = #{data, javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler},
+			</if>
+			<if test="weight > 0">
+				`weight` = #{weight},
+			</if>
+			<if test="lastEffect > 0">
+				last_effect = #{lastEffect},
+			</if>
+			<if test="shareConfigId > 0">
+				share_config_id = #{shareConfigId},
+			</if>
+			<if test="price != null">
+				price = #{price, javaType=com.maicard.money.entity.Price, jdbcType=VARCHAR},
+			</if>
+			<if test="inviter > 0">
+				inviter = #{inviter},
+			</if>
+			<if test="ownerId > 0">
+				owner_id = #{ownerId},
+			</if>
+		</set>
+		WHERE
+		id = #{id}
+	</update>
+
+
+	<delete id="deleteByProductId" parameterType="long">
+		DELETE FROM
+		item
+		WHERE
+		product_id = #{productId}
+	</delete>
+
+	<sql id="selectColumns">
+		a.id,
+		a.transaction_id,
+		a.in_order_id,
+		a.in_notify_url,
+		a.out_order_id,
+		a.transaction_type_id,
+		a.name,
+		a.content,
+		a.product_id,
+		a.object_type,
+		a.charge_from_account,
+		a.charge_to_account,
+		a.from_account_type,
+		a.to_account_type,
+		a.label_money,
+		a.rate,
+		a.count,
+		a.request_money,
+		a.success_money,
+		a.frozen_money,
+		a.in_money,
+		a.out_money,
+		a.enter_time,
+		a.ttl,
+		a.max_retry,
+		a.close_time,
+		a.current_status,
+		a.extra_status,
+		a.billing_status,
+		a.out_status,
+		a.cart_id,
+		a.lock_id,
+		a.process_count,
+		a.supply_partner_id,
+		a.data,
+		a.weight,
+		a.last_effect,
+		a.share_config_id,
+		a.price,
+		a.inviter,
+		a.owner_id
+	</sql>
+	<sql id="criteriaWhereClause">
+		<where>
+			<if test="username !=null and username !=''">
+				front_user.username=#{username}
+			</if>
+			<if test="enterTimeBegin != null">
+				AND enter_time &gt;=#{enterTimeBegin}
+			</if>
+			<if test="enterTimeEnd != null">
+				AND enter_time &lt;=#{enterTimeEnd}
+			</if>
+			<if test="closeTimeBegin != null">
+				AND close_time &gt;=#{closeTimeBegin}
+			</if>
+			<if test="closeTimeEnd != null">
+				AND close_time &lt;=#{closeTimeEnd}
+			</if>
+
+			<if test="inviters !=null and inviters.length > 0">
+				AND a.inviter in (
+				<foreach item="item" index="index" collection="inviters" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="transactionId != null">
+				AND a.transaction_id=#{transactionId}
+			</if>
+			<if test="productIds != null">
+				AND a.product_id IN
+				<foreach item="item" collection="productIds" open="(" separator="," close=")">${item}</foreach>
+			</if>
+			<if test="shareConfigId gt 0 or shareConfigId lt 0">
+				AND a.share_config_id=#{shareConfigId}
+			</if>
+			<if test="inOrderId != null">
+				AND a.in_order_id=#{inOrderId}
+			</if>
+			<if test="outOrderId != null">
+				AND a.out_order_id=#{outOrderId}
+			</if>
+			<if test="transactionTypeId > 0">
+				AND a.transaction_type_id=#{transactionTypeId}
+			</if>
+			<if test="transactionIds != null and transactionIds.length > 0">
+				AND a.transaction_id in
+				<foreach item="item" collection="transactionIds" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="id > 0">
+				AND `id` = #{id}
+			</if>
+			<if test="ids != null">
+				AND a.id in
+				<foreach item="item" collection="ids" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="content != null and content != ''">
+				AND a.content = #{content}
+			</if>
+			<if test="minWeight > 0">
+				AND a.weight &gt;= #{minWeight}
+			</if>
+			<if test="maxWeight > 0">
+				AND a.weight &lt;= #{maxWeight}
+			</if>
+			<if test="lastEffectInterval > 0">
+				AND a.last_effect &lt;= #{lastEffectInterval}
+			</if>
+			<if test="needMinRequestMoney > 0">
+				AND a.request_money &gt;= #{needMinRequestMoney}
+			</if>
+			<if test="fixWeight > 0">
+				AND a.weight = #{fixWeight}
+			</if>
+			<if test="chargeFromAccount > 0">
+				AND a.charge_from_account=#{chargeFromAccount}
+			</if>
+			<if test="chargeToAccount > 0">
+				AND a.charge_to_account=#{chargeToAccount}
+			</if>
+			<if test="fromAccountType > 0">
+				AND a.from_account_type=#{fromAccountType}
+			</if>
+			<if test="fromAccountTypes != null and fromAccountTypes.length > 0">
+				AND a.from_account_type in
+				<foreach item="item" collection="fromAccountTypes" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="toAccountType > 0">
+				AND a.to_account_type=#{toAccountType}
+			</if>
+			<if test="toAccountTypes != null and toAccountTypes.length > 0">
+				AND a.to_account_type in
+				<foreach item="item" collection="toAccountTypes" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="currentStatus != null and currentStatus.length > 0">
+				AND a.current_status in
+				<foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="cartId > 0">
+				AND a.cart_id=#{cartId}
+			</if>
+			<if test="extraStatus > 0">
+				AND a.extra_status=#{extraStatus}
+			</if>
+			<if test="billingStatus > 0">
+				AND a.billing_status=#{billingStatus}
+			</if>
+			<if test="outStatus > 0">
+				AND a.out_status=#{outStatus}
+			</if>
+			<if test="lockId != null">
+				AND a.lock_id=#{lockId}
+			</if>
+			<if test="ownerId > 0">
+				AND a.owner_id = #{ownerId}
+			</if>
+			<if test="timeoutPolicy != null and timeoutPolicy == 'TIMEOUT_ONLY'">
+				AND (UNIX_TIMESTAMP(NOW())-UNIX_TIMESTAMP(a.enter_time)) &gt;= a.ttl
+			</if>
+		</where>
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="itemResult">
+		SELECT
+		<include refid="selectColumns" />
+		FROM item as a
+
+		<include refid="criteriaWhereClause" />
+
+		<if test="orderBy != null">
+			ORDER BY ${orderBy}
+		</if>
+		<if test="orderBy == null">
+			ORDER BY enter_time DESC
+		</if>
+		
+		<include refid="rowLimit" />
+
+		
+	</select>
+	<select id="listWithoutFrontUser" parameterType="map" resultMap="itemResult">
+		SELECT
+		<include refid="selectColumns" />
+		FROM
+		item as a
+		<include refid="criteriaWhereClause" />
+
+		ORDER BY
+		enter_time DESC
+	</select>
+	<select id="count" parameterType="map" resultType="int">
+		SELECT SUM(num) FROM (select COUNT(*) num FROM item AS a
+		<include refid="criteriaWhereClause" />
+		) AS a
+	</select>
+	<select id="countWithoutFrontUser" parameterType="map" resultType="int">
+		SELECT
+		SUM(num)
+		FROM
+		(select
+		COUNT(*) num
+		FROM
+		item AS a
+		<include refid="criteriaWhereClause" />
+
+		) AS a
+	</select>
+	<update id="lock" parameterType="com.maicard.tx.entity.Item">
+		UPDATE
+		item
+		SET
+			<if test="closeTime != null">
+				close_time = #{closeTime},
+			</if>
+			<if test="outOrderId != null">
+				out_order_id = #{outOrderId},
+			</if>
+			current_status = #{afterLockStatus},
+			lock_id = #{lockId}
+		WHERE
+			transaction_id = #{transactionId}
+		AND
+			current_status = #{beforeLockStatus}
+		AND lock_id IS NULL
+	</update>
+
+
+	<delete id="deleteByCriteria" parameterType="map">
+		DELETE
+		a
+		FROM
+		item as a
+		<include refid="criteriaWhereClause" />
+	</delete>
+
+	<delete id="delete" parameterType="String">
+		DELETE FROM
+		item
+		WHERE
+		transaction_id=#{transactionId}
+	</delete>
+
+
+
+	<update id="changeStatus" parameterType="com.maicard.tx.entity.Item">
+		UPDATE
+		item
+		<set>
+			<if test="closeTime != null">
+				close_time = #{closeTime},
+			</if>
+			<if test="processCount == 1">
+				process_count = process_count+1,
+			</if>
+			current_status = #{currentStatus},
+			extra_status = #{extraStatus},
+			<if test="billingStatus > 0">
+				billing_status = #{billingStatus},
+			</if>
+			<if test="inMoney > 0">
+				in_money = #{inMoney},
+			</if>
+			<if test="outStatus > 0">
+				out_status = #{outStatus},
+			</if>
+			lock_id = NULL,
+			last_effect = #{lastEffect}
+
+		</set>
+		<where>
+			transaction_id=#{transactionId}
+		</where>
+	</update>
+
+	<select id="listProcessTimeout" parameterType="map" resultMap="itemResult">
+		SELECT
+		<include refid="selectColumns" />
+		FROM
+		item as a
+		<where>
+			<if test="timeoutSeconds > 0">
+				(UNIX_TIMESTAMP(NOW())-UNIX_TIMESTAMP(a.enter_time)) - a.ttl &gt;= #{timeoutSeconds}
+			</if>
+			<if test="currentStatus != null and currentStatus.length > 0">
+				AND a.current_status in
+				<foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="transactionTypeId > 0">
+				AND transaction_type_id = #{transactionTypeId}
+			</if>
+
+
+		</where>
+	</select>
+
+	<select id="listFrozenDeadAccount" parameterType="map" resultMap="itemResult">
+		SELECT
+		<include refid="selectColumns" />
+		FROM
+		item as a
+		<where>
+			a.transaction_type_id = 12
+			AND
+			a.frozen_money &gt; 0
+			AND
+			a.success_money &gt; 0
+			AND
+			a.current_status=710021
+		</where>
+	</select>
+	<select id="downloadCsv" parameterType="map" resultType="String">
+		CALL saveToCsv(#{beginTime},#{endTime},#{chargeFromAccount})
+	</select>
+	<select id="totalFailItem" parameterType="int" resultType="int"> CALL total_failItem( #{productId})
+	</select>
+</mapper>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	
+    	
+    	<!-- 容器默认的线程池 -->
+    	<bean id="eisDefaultThreadPool" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+			<property name="corePoolSize" value="30" />
+			<property name="maxPoolSize" value="2000" />
+			<property name="queueCapacity" value="100" />
+			<property name="keepAliveSeconds" value="3000" />	    
+    	</bean>
+		
+	
+
+</beans>

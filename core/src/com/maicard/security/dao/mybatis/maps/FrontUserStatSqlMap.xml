@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:57:27 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.security.dao.mapper.FrontUserStatMapper">
+    <resultMap id="frontUserStatResult" type="com.maicard.security.entity.UserStat">
+        <result property="count" column="count"/>
+        <result property="statTime" column="stat_time"/>
+    </resultMap>
+
+    <sql id="criteriaWhereClause">
+        <where>
+            1 = 1
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(statTimeBegin)">
+                AND create_time >= #{statTimeBegin}
+            </if>
+            <if test="@com.maicard.misc.Ognl@isNotEmpty(statTimeEnd)">
+                AND create_time &lt;= #{statTimeEnd}
+            </if>
+        </where>
+    </sql>
+
+
+    <select id="stat" parameterType="map" resultMap="frontUserStatResult">
+        SELECT COUNT(*) `count`, DATE_FORMAT(create_time,"%Y-%m-%d-%H") stat_time FROM front_user
+        <include refid="criteriaWhereClause"/>
+        GROUP BY DATE_FORMAT(create_time,"%Y-%m-%d-%H")
+    </select>
+</mapper>

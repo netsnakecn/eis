@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.money.dao.mapper.MoneyAccountMapper">
+    <resultMap id="moneyAccountResult" type="com.maicard.money.entity.MoneyAccount">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="account_no" property="accountNo" jdbcType="VARCHAR"/>
+        <result column="account_category" property="accountCategory" jdbcType="VARCHAR"/>
+        <result column="account_type" property="accountType" jdbcType="VARCHAR"/>
+        <result column="account_status" property="accountStatus" jdbcType="VARCHAR"/>
+        <result column="account_name" property="accountName" jdbcType="VARCHAR"/>
+        <result column="ext_params" property="extParams" jdbcType="VARCHAR"/>
+        <result column="total_amount" property="totalAmount" jdbcType="BIGINT"/>
+        <result column="available_amount" property="availableAmount" jdbcType="BIGINT"/>
+        <result column="freeze_amount" property="freezeAmount" jdbcType="BIGINT"/>
+        <result column="risk_amount" property="riskAmount" jdbcType="BIGINT"/>
+        <result column="currency" property="currency" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP"/>
+        <result column="uuid" property="uuid" jdbcType="BIGINT"/>
+        <result column="version" property="version" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="columns">
+        <![CDATA[
+          id,account_no, account_category, account_type, uuid,account_status,account_name,ext_params,total_amount,available_amount,freeze_amount,risk_amount,currency,version,create_time,modify_time
+        ]]>
+    </sql>
+    
+    <sql id="rowLimit">
+		<if test="limits &gt; 0">
+        LIMIT 
+            #{starts, jdbcType=BIGINT},
+      	 	#{limits, jdbcType=BIGINT}
+        </if>
+	</sql>
+
+    <insert id="insert" keyProperty="id">
+        INSERT INTO money_account(account_no, account_category, account_type , uuid,account_status,account_name,ext_params,currency,create_time,modify_time)
+        VALUES (
+        #{accountNo, jdbcType=VARCHAR} ,
+        #{accountCategory, jdbcType=VARCHAR},
+        #{accountType, jdbcType=VARCHAR} ,
+        #{uuid, jdbcType=VARCHAR} ,
+        #{accountStatus, jdbcType=VARCHAR} ,
+        #{accountName, jdbcType=VARCHAR} ,
+        #{extParams, jdbcType=VARCHAR} ,
+        #{currency, jdbcType=VARCHAR} ,
+        NOW(),
+        NOW()
+        )
+    </insert>
+    <update id="increase">
+        UPDATE money_account SET
+        <if test="fundType=='AVAL'">
+            total_amount = total_amount + #{tradeAmount, jdbcType=BIGINT},
+            available_amount = available_amount+ #{tradeAmount, jdbcType=BIGINT},
+        </if>
+        <if test="fundType=='FREZ'">
+            available_amount = available_amount - #{tradeAmount, jdbcType=BIGINT},
+            freeze_amount = freeze_amount+ #{tradeAmount, jdbcType=BIGINT},
+        </if>
+        
+        <if test="fundType=='RISK'">
+            available_amount = available_amount - #{tradeAmount, jdbcType=BIGINT},
+            risk_amount = risk_amount+ #{tradeAmount, jdbcType=BIGINT},
+        </if>
+        modify_time= NOW()
+        WHERE
+        account_no = #{accountNo}
+    </update>
+
+    <!--资金扣减使用乐观锁并增加不为0验证-->
+    <update id="decrease4OptLock">
+        UPDATE money_account SET
+        <if test="fundType=='AVAL'">
+            total_amount = total_amount - #{tradeAmount, jdbcType=BIGINT},
+            available_amount = available_amount- #{tradeAmount, jdbcType=BIGINT},
+        </if>
+        <if test="fundType=='FREZ'">
+            available_amount = available_amount + #{tradeAmount, jdbcType=BIGINT},
+            freeze_amount = freeze_amount- #{tradeAmount, jdbcType=BIGINT},
+        </if>
+        <if test="fundType=='RISK'">
+            available_amount = available_amount + #{tradeAmount, jdbcType=BIGINT},
+            risk_amount = risk_amount- #{tradeAmount, jdbcType=BIGINT},
+        </if>
+        version = version+1,
+        modify_time= NOW()
+        WHERE
+        account_no = #{accountNo} and version = #{version} and total_amount &gt;= #{tradeAmount}
+
+    </update>
+    
+    
+    <update id="minus4OptLock">
+        UPDATE money_account SET
+        <if test="fundType=='AVAL'">
+            total_amount = total_amount - #{tradeAmount, jdbcType=BIGINT},
+            available_amount = available_amount- #{tradeAmount, jdbcType=BIGINT},
+        </if>
+        <if test="fundType=='FREZ'">
+            total_amount = total_amount - #{tradeAmount, jdbcType=BIGINT},
+            freeze_amount = freeze_amount - #{tradeAmount, jdbcType=BIGINT},
+        </if>
+        <if test="fundType=='RISK'">
+            total_amount = total_amount - #{tradeAmount, jdbcType=BIGINT},
+            risk_amount = risk_amount- #{tradeAmount, jdbcType=BIGINT},
+        </if>
+        version = version+1,
+        modify_time= NOW()
+        WHERE
+        
+        account_no = #{accountNo} and version = #{version} and total_amount >0
+         <if test="fundType=='AVAL'">
+         	AND available_amount &gt;= #{tradeAmount}
+        </if>
+  		<if test="fundType=='FREZ'">
+        	AND freeze_amount &gt;= #{tradeAmount}
+        </if>
+        <if test="fundType=='RISK'">
+        	AND risk_amount &gt;= #{tradeAmount}
+        </if>
+    </update>
+    
+
+    <select id="queryByAccountNo" resultMap="moneyAccountResult">
+        SELECT
+        <include refid="columns"/>
+        <![CDATA[
+	        FROM money_account
+	        WHERE
+		        account_no = #{accountNo}
+	    ]]>
+    </select>
+	<select id="select" resultMap="moneyAccountResult">
+        SELECT
+        <include refid="columns"/>
+        <![CDATA[
+	        FROM money_account
+	        WHERE
+		        id = #{id}
+	    ]]>
+    </select>
+    
+     
+    <select id="queryAccountList" resultMap="moneyAccountResult">
+        SELECT
+        <include refid="columns"/>
+        FROM money_account <include refid="findWhere"/>
+        ORDER BY id DESC
+ 		<include refid="rowLimit" />
+    </select>
+
+    <update id="updateStatus">
+        UPDATE money_account SET
+        account_status =  #{accountStatus, jdbcType=VARCHAR},
+        modify_time= NOW()
+        WHERE
+        account_no = #{accountNo}
+    </update>
+    
+	<sql id="findWhere">
+        <where>
+            <if test="id > 0">
+                AND id = #{id}
+            </if>
+            	<if test="accountNo != null">
+            	 	AND account_no = #{accountNo}
+            	</if>
+          	
+             <if test="inviters != null and inviters.length > 0">
+                AND uuid IN
+                <foreach item="item" index="index" collection="inviters" open="(" separator=" , " close=")">
+                    #{item}
+                </foreach>
+        	</if>
+            <if test="accountCategories != null and accountCategories.length > 0">
+                AND account_category IN
+                <foreach item="item" index="index" collection="accountCategories" open="(" separator=" , " close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="uuid > 0">
+                AND uuid = #{uuid}
+            </if> 
+             <if test="accountCategory > 0">
+                AND account_category = #{accountCategory}
+            </if>
+            <if test="accountType != null">
+                AND account_type = #{accountType}
+            </if>
+            <if test="accountStatus != null">
+                AND account_status = #{accountStatus}
+            </if>
+            <if test="minAvailableAmount > 0">
+            	AND  available_amount &gt;= #{minAvailableAmount}
+        	</if>
+            <if test="haveAvailableAmount == true">
+            	AND  available_amount &gt; 0
+        	</if>
+        </where>
+    </sql>
+    
+    <select id="count" parameterType="map" resultType="int">
+    	 SELECT count(*) FROM money_account <include refid="findWhere"/> 
+    </select>
+    
+    <select id="list" parameterType="map" resultMap="moneyAccountResult">
+    	SELECT
+    		<include refid="columns"/>
+    	FROM  money_account
+    	<include refid="findWhere"/>
+         ORDER BY id DESC
+    	<include refid="rowLimit" />
+
+    </select>
+
+
+    
+    <select id="getTotal" parameterType="map" resultMap="moneyAccountResult">
+    	SELECT
+    		account_category,SUM(total_amount) total_amount,SUM(available_amount) available_amount
+    	FROM
+    		money_account
+      	<include refid="findWhere"/> 
+    	GROUP BY 
+    		account_category
+    </select>
+
+
+      <delete id="delete">
+        <![CDATA[
+            DELETE FROM money_account WHERE
+            id = #{id}
+        ]]>
+    </delete>
+</mapper>

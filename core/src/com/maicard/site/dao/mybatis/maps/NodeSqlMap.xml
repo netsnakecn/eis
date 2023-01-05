@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:59:08 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.site.dao.mapper.NodeMapper">
+
+    <resultMap id="nodeResult" type="com.maicard.site.entity.Node">
+        <result property="id" column="id"/>
+        <result property="code" column="code"/>
+        <result property="brief" column="brief"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="parentNodeId" column="parent_node_id"/>
+        <result property="nodeTypeId" column="node_type_id"/>
+        <result property="currentStatus" column="current_status"/>
+        <result property="category" column="category"/>
+        <result property="classify" column="classify"/>
+        <result property="level" column="level"/>
+        <result property="viewLevel" column="view_level"/>
+        <result property="redirectTo" column="redirect_to"/>
+        <result property="path" column="path"/>
+        <result property="alias" column="alias"/>
+        <result property="outId" column="out_id"/>
+        <result property="pic" column="pic"/>
+        <result property="data" column="data" javaType="HashMap" jdbcType="VARCHAR"
+                typeHandler="com.maicard.th.TextHashMapTypeHandler"/>
+        <result property="displayWeight" column="display_weight"/>
+        <result property="processor" column="processor"/>
+        <result property="templateId" column="template_id"/>
+        <result property="siteCode" column="site_code"/>
+        <result property="lastModified" column="last_modified"/>
+        <result property="includeNodeSet" column="include_node_set"
+                typeHandler="com.maicard.th.IncludeNodeConfigSetTypeHandler"/>
+        <result property="ownerId" column="owner_id"/>
+        <result property="deleted" column="deleted"/>
+        <result property="version" column="version"/>
+    </resultMap>
+
+    <sql id="selectColumns">
+        id,
+        code,
+        brief,
+        title,
+        content,
+        parent_node_id,
+        node_type_id,
+        current_status,
+        category,
+        classify,
+        level,
+        view_level,
+        redirect_to,
+        path,
+        alias,
+        out_id,
+        pic,
+        data,
+        display_weight,
+        template_id,
+        site_code,
+        processor,
+        last_modified,
+        include_node_set,
+        owner_id,
+        version
+    </sql>
+
+    <insert id="insert" parameterType="com.maicard.site.entity.Node" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO node
+        (<if test="id>0">id,</if>brief, code, owner_id, `title`, `content`, parent_node_id, node_type_id,
+        current_status, `category`, `classify`, `level`, view_level, redirect_to, path, alias, out_id, pic, `data`,
+        display_weight, processor, template_id, site_code, include_node_set, deleted, version)
+        VALUES
+        (<if test="id>0">#{id},</if>#{brief}, #{code}, #{ownerId}, #{title}, #{content}, #{parentNodeId}, #{nodeTypeId},
+        #{currentStatus}, #{category}, #{classify}, #{level}, #{viewLevel}, #{redirectTo}, #{path}, #{alias}, #{outId},
+        #{pic}, #{data, javaType=HashMap, jdbcType=VARCHAR , typeHandler=com.maicard.th.TextHashMapTypeHandler},
+        #{displayWeight}, #{processor}, #{templateId}, #{siteCode},
+        #{includeNodeSet, typeHandler=com.maicard.th.IncludeNodeConfigSetTypeHandler}, #{deleted}, #{version} )
+    </insert>
+
+    <sql id="rowLimit">
+        <if test="limits &gt; 0">
+            LIMIT
+            #{starts, jdbcType=BIGINT},
+            #{limits, jdbcType=BIGINT}
+        </if>
+    </sql>
+
+    <update id="update" parameterType="com.maicard.site.entity.Node">
+        UPDATE
+        node
+        <set>
+            code = #{code},
+            <if test="brief != null">
+                brief = #{brief},
+            </if>
+            <if test="templateId > 0">
+                template_id = #{templateId},
+            </if>
+            <if test="title != null">
+                `title` = #{title},
+            </if>
+            <if test="content != null">
+                `content` = #{content},
+            </if>
+            <if test="parentNodeId > 0">
+                parent_node_id = #{parentNodeId},
+            </if>
+            <if test="nodeTypeId > 0">
+                node_type_id = #{nodeTypeId},
+            </if>
+            <if test="currentStatus > 0">
+                current_status = #{currentStatus},
+            </if>
+            <if test="category != null">
+                `category` = #{category},
+            </if>
+            <if test="classify != null">
+                `classify` = #{classify},
+            </if>
+            <if test="level > 0">
+                `level` = #{level},
+            </if>
+            <if test="viewLevel > 0">
+                view_level = #{viewLevel},
+            </if>
+            <if test="redirectTo != null">
+                redirect_to = #{redirectTo},
+            </if>
+            <if test="path != null">
+                path = #{path},
+            </if>
+            <if test="alias != null">
+                alias = #{alias},
+            </if>
+            <if test="outId != null">
+                out_id = #{outId},
+            </if>
+            <if test="pic != null">
+                pic = #{pic},
+            </if>
+            <if test="data != null and data.size() > 0">
+                data = #{data,javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler},
+            </if>
+            <if test="displayWeight > 0">
+                display_weight = #{displayWeight},
+            </if>
+            <if test="processor != null">
+                processor = #{processor},
+            </if>
+            <if test="siteCode != null">
+                site_code = #{siteCode},
+            </if>
+            <if test="includeNodeSet != null and includeNodeSet.size() > 0">
+                include_node_set = #{includeNodeSet, typeHandler=com.maicard.th.IncludeNodeConfigSetTypeHandler},
+            </if>
+            <if test="ownerId > 0">
+                owner_id = #{ownerId},
+            </if>
+            deleted = #{deleted},
+            <if test="version > 0">
+                version = #{version}
+            </if>
+            <if test="id > 0">
+                AND `id` = #{id}
+            </if>
+        </set>
+        <where>
+            id = #{id}
+            AND
+            version &lt; #{version}
+        </where>
+    </update>
+
+    <update id="delete" parameterType="long">
+        UPDATE
+            node
+        SET
+            deleted = 1,
+            code = CONCAT(code, "_", id, "_DELETED")
+        WHERE
+            id = #{id}
+            AND deleted = 0
+    </update>
+
+    <select id="select" parameterType="long" resultMap="nodeResult">
+        SELECT
+        <include refid="selectColumns"/>
+        FROM
+        node
+        WHERE
+        id = #{id}
+    </select>
+
+    <sql id="criteriaWhereClause">
+        1=1
+        <if test="alias != null">
+            AND alias=#{alias}
+        </if>
+        <if test="code != null">
+            AND code=#{code}
+        </if>
+        <if test="codeLike != null">
+            AND (id LIKE concat('%', #{codeLike}, '%') OR code LIKE concat('%', #{codeLike}, '%'))
+        </if>
+        <if test="aliasLike != null">
+            AND alias LIKE concat('%', #{aliasLike}, '%')
+        </if>
+        <if test="path != null">
+            AND path=#{path}
+        </if>
+        <if test="category != null">
+            AND category=#{category}
+        </if>
+        <if test="classify != null">
+            AND classify=#{classify}
+        </if>
+        <if test="maxViewLevel > 0">
+            AND view_level &lt;=#{maxViewLevel}
+        </if>
+        <if test="currentStatus != null">
+            AND current_status in
+            <foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="parentNodeId > 0">
+            AND parent_node_id=#{parentNodeId}
+        </if>
+        <if test="nodeTypeId > 0">
+            AND node_type_id=#{nodeTypeId}
+        </if>
+        <if test="outId != null">
+            AND out_id=#{outId}
+        </if>
+        <if test="id > 0">
+            AND id=#{id}
+        </if>
+        <if test="siteCode != null">
+            AND site_code=#{siteCode}
+        </if>
+        <if test="ownerId > 0">
+            AND owner_id = #{ownerId}
+        </if>
+        <choose>
+            <when test="withDeleted > 0">AND deleted > 0</when>
+            <otherwise>AND deleted = 0</otherwise>
+        </choose>
+        <if test="fuzzyQuery != null">
+            AND (
+            title LIKE concat('%', '${fuzzyQuery}', '%')
+            OR
+            content LIKE concat('%', '${fuzzyQuery}', '%')
+            )
+        </if>
+    </sql>
+
+
+    <select id="listPk" parameterType="map" resultType="long">
+        SELECT
+        id
+        FROM
+        node
+        <where>
+            <include refid="criteriaWhereClause"/>
+        </where>
+        <if test="orderBy != null">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="orderBy == null">
+            ORDER BY
+            display_weight DESC ,id ASC
+        </if>
+
+        <include refid="rowLimit"/>
+    </select>
+
+    <select id="list" parameterType="map" resultMap="nodeResult">
+        SELECT
+        <include refid="selectColumns"/>
+        FROM
+        node
+        <where>
+            <include refid="criteriaWhereClause"/>
+        </where>
+        <if test="orderBy != null">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="orderBy == null">
+            ORDER BY
+            display_weight DESC ,id ASC
+        </if>
+        <include refid="rowLimit"/>
+    </select>
+
+
+    <select id="count" parameterType="map" resultType="int">
+        SELECT
+        COUNT(*)
+        FROM
+        node
+        <where>
+            <include refid="criteriaWhereClause"/>
+        </where>
+    </select>
+
+</mapper>

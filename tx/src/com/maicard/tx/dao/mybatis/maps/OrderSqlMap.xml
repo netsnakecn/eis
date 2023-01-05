@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:55:30 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.tx.dao.mapper.OrderMapper">
+
+	<resultMap id="orderResult" type="com.maicard.tx.entity.Order">
+		<result property="uuid" column="uuid"/>
+		<result property="id" column="id"/>
+		<result property="goodsDesc" column="goods_desc"/>
+		<result property="priceType" column="price_type"/>
+		<result property="orderType" column="order_type"/>
+		<result property="buyType" column="buy_type"/>
+		<result property="price" column="price" javaType="com.maicard.money.entity.Price" jdbcType="VARCHAR" typeHandler="com.maicard.money.th.PriceJsonHandler"/>
+		<result property="totalMoney" column="total_money"  />
+		<result property="deliveryFee" column="delivery_fee"  />
+		<result property="paidMoney" column="paid_money"  />
+		<result property="moneyType" column="money_type"  />
+		<result property="identify" column="identify"/>
+		<result property="fromAddressBookId" column="from_address_book_id"/>
+		<result property="addressBookId" column="address_book_id"/>
+		<result property="addressBook" column="address_book" javaType="com.maicard.tx.entity.AddressBook" jdbcType="VARCHAR" typeHandler="com.maicard.tx.th.AddressBookJsonHandler"/>
+		<result property="totalProduct" column="total_product"/>
+		<result property="totalGoods" column="total_goods"/>
+		<result property="transactionIds" column="transaction_ids" javaType="List" jdbcType="VARCHAR" typeHandler="com.maicard.th.StringArrayTypeHandler"/>
+		<result property="deliveryOrderId" column="delivery_id"/>
+		<result property="invoiceInfo" column="invoice_info"/>
+		<result property="data" column="data" javaType="HashMap" jdbcType="VARCHAR" typeHandler="com.maicard.th.TextHashMapTypeHandler"/>
+		<result property="specInfo" column="spec_info" javaType="HashMap" jdbcType="VARCHAR" typeHandler="com.maicard.th.TextHashMapTypeHandler"/>
+		<result property="createTime" column="create_time"/>
+		<result property="endTime" column="endTime"/>
+		<result property="lastAccessTime" column="last_access_time"/>
+		<result property="quotaType" column="quota_type"/>
+		<result property="totalQuota" column="total_quota"/>
+		<result property="successQuota" column="success_quota"/>
+		<result property="lockedQuota" column="locked_quota"/>
+		<result property="inviter" column="inviter"/>
+		<result property="ttl" column="ttl"/>
+		<result property="currentStatus" column="current_status"/>
+		<result property="extraStatus" column="extra_status"/>
+		<result property="ownerId" column="owner_id"/>
+	</resultMap>
+
+	<sql id="selectColumns">
+			uuid,
+			id,
+			goods_desc,
+			price_type,
+			order_type,
+			buy_type,
+			price,
+			total_money,delivery_fee,
+			paid_money,
+			money_type,
+			identify,
+		    from_address_book_id,
+			address_book_id,
+			address_book,
+			total_product,
+			total_goods,
+			transaction_ids,
+			delivery_id,
+			invoice_info,
+			data,
+			spec_info,
+			create_time,
+			end_time,
+			last_access_time,
+			quota_type,
+			total_quota,
+			success_quota,
+			locked_quota,
+			inviter,
+			ttl,
+			current_status,
+			extra_status,
+			owner_id
+	</sql>
+	<sql id="rowLimit">
+		<if test="limits &gt; 0">
+			LIMIT
+			#{starts, jdbcType=BIGINT},
+			#{limits, jdbcType=BIGINT}
+		</if>
+	</sql>
+
+	<insert id="insert" parameterType="com.maicard.tx.entity.Order" useGeneratedKeys="true"  keyProperty="id">
+		INSERT INTO `order`
+			(<if test="id>0">id,</if> goods_desc, price_type, order_type, buy_type, price, total_money, delivery_fee, paid_money, money_type, identify, from_address_book_id, address_book_id, address_book, total_product, total_goods, transaction_ids, delivery_id, invoice_info, data, spec_info, owner_id, uuid, create_time, end_time, last_access_time, quota_type, total_quota, success_quota, locked_quota,inviter, ttl, current_status, extra_status)
+		VALUES
+			(<if test="id>0">#{id},</if>#{goodsDesc}, #{priceType}, #{orderType}, #{buyType}, #{price, javaType=com.maicard.money.entity.Price, jdbcType=VARCHAR,typeHandler=com.maicard.money.th.PriceJsonHandler}, #{totalMoney}, #{deliveryFee}, #{paidMoney}, #{moneyType},  #{identify}, #{fromAddressBookId}, #{addressBookId},#{addressBook, javaType=com.maicard.tx.entity.AddressBook, jdbcType=VARCHAR, typeHandler=com.maicard.tx.th.AddressBookJsonHandler}, #{totalProduct}, #{totalGoods}, #{transactionIds, javaType=List, jdbcType=VARCHAR, typeHandler=com.maicard.th.StringArrayTypeHandler}, #{deliveryOrderId}, #{invoiceInfo}, #{data, javaType=HashMap, jdbcType=VARCHAR , typeHandler=com.maicard.th.TextHashMapTypeHandler}, #{specInfo, javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler}, #{ownerId}, #{uuid}, #{createTime}, #{endTime}, #{lastAccessTime}, #{quotaType}, #{totalQuota}, #{successQuota}, #{lockedQuota}, #{inviter}, #{ttl},  #{currentStatus}, #{extraStatus})
+	</insert>
+	<update id="updateBatch" parameterType="map">
+		UPDATE
+		`order`
+		SET
+			current_status=#{currentStatus},
+			identify = #{identify}
+		WHERE
+			current_status=#{lockStatus}
+			AND id in
+			<foreach item="item" collection="id" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+			<if test="mustNullIdentify == true">
+				AND (identify IS NULL OR identify = '')
+			</if>
+
+	</update>
+
+	<update id="update" parameterType="com.maicard.tx.entity.Order">
+		UPDATE
+			`order`
+		SET
+			goods_desc = #{goodsDesc},
+			price_type = #{priceType},
+			order_type = #{orderType},
+			buy_type = #{buyType},
+			price = #{price, javaType=com.maicard.money.entity.Price, jdbcType=VARCHAR, typeHandler=com.maicard.money.th.PriceJsonHandler},
+			total_money = #{totalMoney},
+			delivery_fee = #{deliveryFee},
+			paid_money = #{paidMoney},
+			money_type = #{moneyType},
+			identify = #{identify},
+		    from_address_book_id = #{fromAddressBookId},
+			address_book_id = #{addressBookId},
+			address_book = #{addressBook, javaType=com.maicard.tx.entity.AddressBook, jdbcType=VARCHAR, typeHandler=com.maicard.tx.th.AddressBookJsonHandler},
+			total_product = #{totalProduct},
+			total_goods = #{totalGoods},
+			transaction_ids = #{transactionIds, javaType=List, jdbcType=VARCHAR, typeHandler=com.maicard.th.StringArrayTypeHandler},
+			delivery_id = #{deliveryOrderId},
+			invoice_info = #{invoiceInfo},
+			data = #{data,javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler},
+			spec_info = #{specInfo,javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler},
+			uuid = #{uuid},
+			create_time = #{createTime},
+			end_time = #{endTime},
+			quota_type = #{quotaType},
+			total_quota = #{totalQuota},
+			success_quota = #{successQuota},
+			locked_quota = #{lockedQuota},
+			last_access_time = #{lastAccessTime},
+			inviter = #{inviter},
+			ttl = #{ttl},
+			current_status = #{currentStatus},
+			extra_status = #{extraStatus},
+			owner_id = #{ownerId}
+		<where>
+			id = #{id}
+			<if test="beforeLockQuota >= 0">
+				AND locked_quota = #{beforeLockQuota}
+			</if>
+			<if test="lockStatus > 0">
+				AND current_status = #{lockStatus}
+			</if>
+		</where>
+	</update>
+
+	<update id="updateNoNull" parameterType="com.maicard.tx.entity.Order">
+		UPDATE
+			`order`
+		<set>
+			<if test="goodsDesc != null">
+				goods_desc = #{goodsDesc},
+			</if>
+			<if test="priceType != null">
+				price_type = #{priceType},
+			</if>
+			<if test="orderType != null">
+				order_type = #{orderType},
+			</if>
+			<if test="buyType != null">
+				buy_type = #{buyType},
+			</if>
+			<if test="price != null">
+				price = #{price, javaType=com.maicard.money.entity.Price, jdbcType=VARCHAR},
+			</if>
+			<if test="totalMoney != 0">
+				total_money = #{totalMoney},
+			</if>
+			<if test="totalMoney != 0">
+				delivery_fee = #{deliveryFee},
+			</if>
+			<if test="paidMoney != 0">
+				paid_money = #{paidMoney},
+			</if>
+			<if test="moneyType != null">
+				money_type = #{moneyType},
+			</if>
+			<if test="identify != null">
+				identify = #{identify},
+			</if>
+			<if test="fromAddressBookId > 0">
+				from_address_book_id = #{fromAddressBookId},
+			</if>
+			<if test="addressBookId > 0">
+				address_book_id = #{addressBookId},
+			</if>
+			<if test="addressBook != null">
+				price = #{addressBook, javaType=com.maicard.tx.entity.AddressBook, jdbcType=VARCHAR},
+			</if>
+			<if test="totalProduct > 0">
+				total_product = #{totalProduct},
+			</if>
+			<if test="totalGoods > 0">
+				total_goods = #{totalGoods},
+			</if>
+			<if test="transactionIds != null">
+				transaction_ids = #{transactionIds, javaType=List, jdbcType=VARCHAR, typeHandler=com.maicard.th.StringArrayTypeHandler},
+			</if>
+			<if test="deliveryOrderId != null">
+				delivery_id = #{deliveryOrderId},
+			</if>
+			<if test="uuid > 0">
+				uuid = #{uuid},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime},
+			</if>
+			<if test="quotaType != null">
+				quota_type = #{quotaType},
+			</if>
+			<if test="totalQuota >= 0">
+				total_quota = #{totalQuota},
+			</if>
+			<if test="successQuota >= 0">
+				success_quota = #{successQuota},
+			</if>
+			<if test="lockedQuota >= 0">
+				locked_quota = #{lockedQuota},
+			</if>
+
+			<if test="endTime != null">
+				end_time = #{endTime},
+			</if>
+			<if test="lastAccessTime != null">
+				last_access_time = #{lastAccessTime},
+			</if>
+			<if test="inviter > 0">
+				inviter = #{inviter},
+			</if>
+			<if test="ttl > 0">
+				ttl = #{ttl},
+			</if>
+			<if test="currentStatus > 0">
+				current_status = #{currentStatus},
+			</if>
+			<if test="extraStatus != null">
+				extra_status = #{extraStatus},
+			</if>
+			<if test="ownerId > 0">
+				owner_id = #{ownerId}
+			</if>
+		</set>
+		<where>
+			id = #{id}
+			<if test="beforeLockQuota >= 0">
+				AND locked_quota = #{beforeLockQuota}
+			</if>
+		</where>
+	</update>
+
+
+
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			`order`
+		WHERE
+			id = #{id}
+	</delete>
+
+	<select id="select" parameterType="long" resultMap="orderResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			`order`
+		WHERE
+			id = #{id}
+	</select>
+
+
+	<select id="sum" parameterType="map" resultMap="orderResult">
+		SELECT
+		SUM(total_money) total_money, count(*) total_product
+		FROM
+		`order`
+		<include refid="criteriaWhereClause"/>
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+			<if test="currentStatus != null">
+				AND current_status in 
+				<foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+	        			#{item}
+	  			</foreach>				
+	  		</if>
+	  		<if test="excludeStatus != null and excludeStatus.length > 0">
+				AND current_status NOT IN 
+				<foreach item="item" collection="excludeStatus" open="(" separator="," close=")">
+	        			#{item}
+	  			</foreach>				
+	  		</if>
+	  		<if test="ownerId > 0">
+				AND owner_id = #{ownerId}
+			</if>
+	  		<if test="timeoutPolicy != null and timeoutPolicy == 'TIMEOUT_ONLY'">
+		        AND (UNIX_TIMESTAMP(NOW())-UNIX_TIMESTAMP(last_access_time)) &gt;= ttl
+		    </if>
+	  		<if test="priceType != null">
+				AND price_type = #{priceType}
+			</if>
+			<if test="orderDay != null">
+				AND DATE_FORMAT(create_time,"%Y-%m-%d")=#{orderDay}
+			</if>
+			<if test="buyType != null">
+				AND buy_type = #{buyType}
+			</if>
+			<if test="requireInvoice == 1">
+				AND invoice_info IS NOT NULL
+			</if>
+			<if test="requireInvoice == 2">
+				AND invoice_info IS NULL 
+			</if>
+			<if test="createTimeBegin != null">
+				AND create_time &gt;= #{createTimeBegin}
+			</if>
+			<if test="createTimeEnd != null">
+				AND create_time &lt;= #{createTimeEnd}
+			</if>
+			<if test="id > 0">
+				AND `id` = #{id}
+			</if>
+			<if test="ids != null and ids.length > 0">
+				AND id in 
+				<foreach item="item" collection="ids" open="(" separator="," close=")">
+	        			#{item}
+	  			</foreach>				
+	  		</if>
+			<if test="orderType != null">
+				AND order_type = #{orderType}
+			</if>
+	  		<if test="uuid > 0">
+				AND uuid = #{uuid}
+			</if>
+			<if test="extraStatus != null">
+				AND extra_status = #{extraStatus}
+			</if>
+			<if test="identify != null">
+				AND identify = #{identify}
+			</if>
+			<if test="inviters !=null and inviters.length > 0">
+				AND inviter in (
+				<foreach item="item" collection="inviters"
+					separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="productIds != null and productIds.length > 0">
+			    AND id IN ( SELECT DISTINCT id FROM item_all WHERE product_id IN 
+			    	<foreach item="item" collection="productIds" open="(" separator="," close=")">
+	        			#{item}
+	  			</foreach>		
+			    )		    
+			</if>
+			<if test="queryExtraMap != null and queryExtraMap.size > 0">
+			    AND id IN ( SELECT DISTINCT id FROM item_all WHERE item_id IN (
+			    	SELECT DISTINCT product_id FROM item_data_all WHERE 
+			    	<foreach item="dv" index="dd" collection="queryExtraMap" separator=" AND ">
+			    	    (	data_define_id=#{dd} AND data_value=#{dv}	)
+			    	</foreach>		
+			    	)
+			    )		    
+			</if>
+		</where>
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="orderResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			`order`
+		<include refid="criteriaWhereClause"/>
+		ORDER BY
+			create_time DESC
+		<include refid="rowLimit" />
+
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			`order`
+		<include refid="criteriaWhereClause"/>
+	</select>
+
+</mapper>

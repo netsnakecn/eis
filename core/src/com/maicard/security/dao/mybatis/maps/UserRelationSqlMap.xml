@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.security.dao.mapper.UserRelationMapper">
+	<resultMap id="UserRelationResult" type="com.maicard.security.entity.UserRelation">
+		<result property="id" column="id"/>
+		<result property="uuid" column="uuid"/>
+		<result property="objectId" column="object_id"/>
+		<result property="objectType" column="object_type"/>
+		<result property="relationLimit" column="relation_limit"/>
+		<result property="relationType" column="relation_type"/>
+		<result property="data" column="data" javaType="HashMap" jdbcType="VARCHAR" typeHandler="com.maicard.th.TextHashMapTypeHandler"/>
+		<result property="activity" column="activity"/>
+		<result property="createTime" column="create_time"/>
+		<result property="lastUse" column="last_use"/>
+		<result property="currentStatus" column="current_status"/>
+		<result property="ownerId" column="owner_id"/>
+	</resultMap>
+
+	<sql id="rowLimit">
+		<if test="limits &gt; 0">
+			LIMIT
+			#{starts, jdbcType=BIGINT},
+			#{limits, jdbcType=BIGINT}
+		</if>
+	</sql>
+    <sql id="selectColumns">
+        id,
+		uuid,
+		object_id,
+		object_type,
+		relation_limit,
+		relation_type,
+		data,
+		activity,
+		create_time,
+		last_use,
+		current_status,
+		owner_id
+    </sql>
+	<insert id="insert" parameterType="com.maicard.security.entity.UserRelation" useGeneratedKeys="true"  keyProperty="id">
+		INSERT INTO user_relation
+			(<if test="id>0">id,</if> owner_id, uuid, object_id, object_type, relation_limit, relation_type, data, activity, create_time, last_use, current_status)
+		VALUES
+			(<if test="id>0">#{id},</if> #{ownerId}, #{uuid}, #{objectId},#{objectType}, #{relationLimit}, #{relationType}, #{data,javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler}, #{activity}, #{createTime}, #{lastUse}, #{currentStatus})
+	</insert>
+
+	<update id="update" parameterType="com.maicard.security.entity.UserRelation">
+		UPDATE
+			user_relation
+		SET
+			uuid = #{uuid},
+			object_id = #{objectId},			
+			object_type = #{objectType},
+			relation_limit = #{relationLimit},
+			relation_type = #{relationType},
+			data = #{data,javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler},
+			activity = #{activity},
+			create_time = #{createTime},
+			last_use = #{lastUse},
+			current_status = #{currentStatus},
+			owner_id = #{ownerId}
+		
+		WHERE
+			id = #{id}
+	</update>
+	
+	
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			user_relation
+		WHERE
+			id = #{id}
+	</delete>
+	
+	<select id="select" parameterType="long" resultMap="UserRelationResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			user_relation as a
+		WHERE
+			id = #{id}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+			owner_id = #{ownerId}
+			<if test="id > 0">
+				AND `id` = #{id}
+			</if>
+			<if test="@com.maicard.misc.Ognl@isNotZero(uuid)">
+				AND uuid = #{uuid}
+		  	</if>
+			<if test="@com.maicard.misc.Ognl@isValueArray(uuids)">
+				AND uuid in
+				<foreach item="item" collection="uuids" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+		  	<if test="@com.maicard.misc.Ognl@isNotZero(objectId)">
+				AND	object_id = #{objectId}
+		  	</if>
+		  	<if test="@com.maicard.misc.Ognl@isNotEmpty(relationLimit)">
+				AND	relation_limit = #{relationLimit}
+		  	</if>
+		  	<if test="@com.maicard.misc.Ognl@isNotEmpty(relationType)">
+				AND	relation_type = #{relationType}
+		  	</if>
+			<if test="@com.maicard.misc.Ognl@isValueArray(relationTypes)">
+				AND relation_type in
+				<foreach item="item" collection="relationTypes" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+		  	<if test="@com.maicard.misc.Ognl@isNotEmpty(objectTyp)">
+				AND	object_type = #{objectType}
+		  	</if>
+		  	<if test="@com.maicard.misc.Ognl@isNotEmpty(beginTime)">
+				AND	create_time &gt;= #{beginTime}
+		  	</if>
+		  	<if test="@com.maicard.misc.Ognl@isNotEmpty(endTime)">
+				AND	create_time &lt;= #{endTime}
+		  	</if>
+		  	<if test="@com.maicard.misc.Ognl@isValueArray(currentStatus)">
+					AND current_status in 
+					<foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+		        			#{item}
+		  			</foreach>				
+		  	</if>
+			<if test="@com.maicard.misc.Ognl@isNotEmpty(noNegativeActivity) and noNegativeActivity == true">
+				AND	activity &gt;= 0
+			</if>
+			<if test="@com.maicard.misc.Ognl@isNotZero(communityId)">
+				AND	object_id IN (
+				SELECT object_id FROM user_relation WHERE
+				object_type='node' AND relation_type='own'
+				AND `uuid`=#{communityId}
+				)
+			</if>
+		</where>
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="UserRelationResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			user_relation
+		<include refid="criteriaWhereClause"/>
+		<if test="orderBy != null">
+		    ORDER BY ${orderBy}		    
+		</if>
+		<if test="orderBy == null">
+		    ORDER BY create_time DESC
+		</if>
+		<include refid="rowLimit" />
+
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			user_relation
+		<include refid="criteriaWhereClause"/>
+	</select>
+	
+	<delete id="deleteByCriteria" parameterType="int">
+		DELETE FROM
+			user_relation
+		<include refid="criteriaWhereClause"/>
+
+	</delete>
+	
+	<select id="getMaxId" resultType="long">
+		SELECT IFNULL(MAX(id),0)
+		FROM
+			user_relation
+	</select>
+
+</mapper>

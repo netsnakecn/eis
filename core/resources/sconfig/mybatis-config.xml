@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 15:01:45 CST 2013-->
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD SQL Map Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <typeHandlers>
+        <typeHandler javaType="List" jdbcType="VARCHAR"  handler="com.maicard.th.StringArrayTypeHandler" />
+        <typeHandler javaType="HashMap" jdbcType="VARCHAR"  handler="com.maicard.th.TextHashMapTypeHandler" />
+        <typeHandler javaType="HashMap" jdbcType="BLOB"  handler="com.maicard.th.BinHashMapTypeHandler" />
+    </typeHandlers>
+</configuration>

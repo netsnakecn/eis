@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.tx.dao.mapper.DeliveryPriceMapper">
+	<resultMap id="deliveryPriceResult" type="com.maicard.tx.entity.DeliveryPrice">
+		<result property="id" column="id" />
+		<result property="areaType" column="area_type" />
+		<result property="basePrice" column="base_price" />
+		<result property="deliveryCompanyId" column="delivery_company_id" />
+		<result property="memory" column="memory" />
+		<result property="currentStatus" column="current_status" />
+		<result property="baseWeight" column="base_weight" />
+		<result property="additinalPrice" column="additinal_price" />
+		<result property="additinalWeightUnit" column="additinal_weight_unit" />
+		<result property="fromProvince" column="from_province" />
+		<result property="fromArea" column="from_area" />
+		<result property="toProvince" column="to_province" />		
+		<result property="toArea" column="to_area" />
+		<result property="identify" column="identify" />		
+		<result property="ownerId" column="owner_id"/>
+	</resultMap>
+
+	<insert id="insert" parameterType="com.maicard.tx.entity.DeliveryPrice" useGeneratedKeys="true"
+		keyProperty="id">
+		INSERT INTO delivery_price(	<if test="id > 0">id,</if> owner_id, delivery_company_id, area_type, base_price, memory, current_status, base_weight,additinal_price, additinal_weight_unit, from_province, from_area, to_province, to_area, identify )
+		VALUES(<if test="id > 0">#{id},</if> #{ownerId},  #{deliveryCompanyId}, #{areaType}, #{basePrice}, #{memory},#{currentStatus},#{baseWeight}, #{additinalPrice}, #{additinalWeightUnit},  #{fromProvince}, #{fromArea}, #{toProvince}, #{toArea}, #{identify})
+	</insert>
+
+	<sql id="selectColumns">
+		id,
+		area_type,
+		base_price,
+		delivery_company_id,
+		current_status,
+		base_weight,
+		additinal_price,
+		additinal_weight_unit,
+		from_province,
+		from_area,
+		to_province,
+		to_area,
+		owner_id
+	</sql>
+
+	<update id="update" parameterType="com.maicard.tx.entity.DeliveryPrice">
+		UPDATE
+			delivery_price
+		SET
+			area_type =	#{areaType},
+			base_price = #{basePrice},
+			delivery_company_id = #{deliveryCompanyId}, 
+			current_status = #{currentStatus},
+			base_weight = #{baseWeight}, 
+			additinal_price = #{additinalPrice},
+			additinal_weight_unit = #{additinalWeightUnit},
+			from_province = #{fromProvince},
+			from_area = #{fromArea},
+			to_province = #{toProvince},
+			to_area = #{toArea},
+			owner_id = #{ownerId}
+		WHERE
+			id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			deliveryPrice
+		WHERE
+			id = #{id}
+	</delete>
+
+	<select id="select" parameterType="long" resultMap="deliveryPriceResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			delivery_price
+		WHERE
+			id = #{id}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+			owner_id = #{ownerId}
+			<if test="toProvince != null">
+				AND to_province IN (#{toProvince},'*')
+			</if>
+			<if test="fromProvince != null">
+				AND from_province IN (#{fromProvince},'*')
+			</if>
+			<if test="toArea != null">
+				AND to_area IN (#{toArea},'*')
+			</if>
+			<if test="fromArea != null">
+				AND from_area IN (#{fromArea},'*')
+			</if>
+			<if test="identify != null">
+				AND identify=#{identify}
+			</if>
+			<if test="deliveryCompanyId > 0">
+				AND delivery_company_id=#{deliveryCompanyId}
+			</if>
+			<if test="currentStatus != null">
+				AND current_status in
+				<foreach item="item" collection="currentStatus" open="("
+					separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="id > 0">
+				AND `id` = #{id}
+			</if>
+		</where>
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="deliveryPriceResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			delivery_price
+			<include refid="criteriaWhereClause" />
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			delivery_price
+		<include refid="criteriaWhereClause" />
+	</select>
+
+</mapper>

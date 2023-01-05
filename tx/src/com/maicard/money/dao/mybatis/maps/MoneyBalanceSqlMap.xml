@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:53:55 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.money.dao.mapper.MoneyBalanceMapper">
+
+	<resultMap id="moneyBalanceResult" type="com.maicard.money.entity.MoneyBalance">
+		<result property="id" column="id"/>
+		<result property="uuid" column="uuid"/>
+		<result property="createTime" column="create_time"/>
+		<result property="waitingSettlementMoney" column="waiting_settlement_money"/>
+		<result property="waitingWithdrawMoney" column="waiting_withdraw_money"/>
+		<result property="receivableMoney" column="receivable_money"/>
+		<result property="arrivedMoney" column="arrived_money"/>
+		<result property="profit" column="profit"/>
+		<result property="data" column="data" javaType="HashMap" jdbcType="VARCHAR" typeHandler="com.maicard.th.TextHashMapTypeHandler"/>
+		<result property="currentStatus" column="currentStatus"/>
+		<result property="ownerId" column="owner_id"/>
+	</resultMap>
+	
+	<sql id="selectColumns">
+			id,
+			uuid,
+			create_time,
+			waiting_settlement_money,
+			waiting_withdraw_money,
+			receivable_money,
+			arrived_money,
+			profit,
+			`data`,
+			current_status,
+			owner_id
+	</sql>
+	
+	<insert id="insert" parameterType="com.maicard.money.entity.MoneyBalance" useGeneratedKeys="true"  keyProperty="id">
+		INSERT INTO money_balance
+			(<if test="id>0">id,</if> owner_id, uuid, create_time, waiting_settlement_money, waiting_withdraw_money, receivable_money, arrived_money, profit, `data`, current_status)
+		VALUES
+			(<if test="id>0">#{id},</if> #{ownerId}, #{uuid}, #{createTime}, #{waitingSettlementMoney}, #{waitingWithdrawMoney}, #{receivableMoney}, #{arrivedMoney}, #{profit}, #{data, javaType=HashMap, jdbcType=VARCHAR , typeHandler=com.maicard.th.TextHashMapTypeHandler}, #{currentStatus})
+	</insert>
+
+	<update id="update" parameterType="com.maicard.money.entity.MoneyBalance">
+		UPDATE
+			money_balance
+		SET
+			uuid = #{uuid},
+			create_time = #{createTime},
+			current_status = #{currentStatus},
+			waiting_settlement_money = #{waitingSettlementMoney},
+			waiting_withdraw_money = #{waitingWithdrawMoney},
+			receivable_money = #{receivableMoney},
+			arrived_money = #{arrivedMoney},
+			profit = #{profit},
+			data = #{data,javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler},
+			current_status = #{currentStatus},
+			owner_id = #{ownerId}
+		WHERE
+			id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			money_balance
+		WHERE
+			id = #{id}
+	</delete>
+	
+	<select id="select" parameterType="long" resultMap="moneyBalanceResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			money_balance
+		WHERE
+			id = #{id}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+			<if test="uuid > 0">
+				uuid = #{uuid}
+			</if>
+			<if test="id > 0">
+				AND `id` = #{id}
+			</if>
+			<if test="ownerId > 0">
+				AND owner_id = #{ownerId}
+			</if>
+			<if test="createTimeBegin != null">
+				AND create_time &gt;= #{createTimeBegin}
+			</if>
+			<if test="createTimeEnd != null">
+				AND create_time &lt;= #{createTimeEnd}
+			</if>
+			<if test="currentStatus != null and currentStatus.length &gt; 0">
+				AND current_status in 
+				<foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+	        			#{item}
+	  			</foreach>				
+	  		</if>
+		</where>
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="moneyBalanceResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			money_balance	
+		<include refid="criteriaWhereClause"/>
+		ORDER BY
+			create_time DESC, id DESC
+	</select>
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			money_balance
+		<include refid="criteriaWhereClause"/>
+	</select>
+	
+
+	
+	
+
+</mapper>

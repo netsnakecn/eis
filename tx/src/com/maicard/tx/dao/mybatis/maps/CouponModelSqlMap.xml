@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.tx.dao.mapper.CouponModel">
+
+	<resultMap id="couponModelResult" type="com.maicard.tx.entity.CouponModel">
+		<result property="couponModelId" column="coupon_model_id" />
+			<result property="parentCouponModelId" column="parent_coupon_model_id" />
+		<result property="level" column="level" />
+		<result property="couponCode" column="coupon_code" />
+		<result property="extraCode" column="extra_code" />
+		<result property="couponModelName" column="coupon_model_name" />
+		<result property="couponModelDesc" column="coupon_model_desc" />
+		<result property="content" column="content" />
+		<result property="binContent" column="bin_content" />
+		<result property="giftMoney" column="gift_money"   />
+		<result property="giftMoneyType" column="gift_money_type"  />
+		<result property="priceMoney" column="price_money"   />
+		<result property="priceMoneyType" column="price_money_type"  />
+		<result property="memory" column="memory" />
+		<result property="couponType" column="coupon_type" />
+		<result property="validTimeBegin" column="valid_time_begin" />
+		<result property="validTimeEnd" column="valid_time_end" />
+		<result property="inviter" column="inviter" />
+		<result property="imageUrl" column="image_url" />
+		<result property="promotionData" column="promotion_data" />
+		<result property="processor" column="processor" />
+		<result property="identify" column="identify"/>
+		<result property="currentStatus" column="current_status" />
+		<result property="ownerId" column="owner_id"/>
+		<result property="data" column="data" javaType="HashMap" jdbcType="VARCHAR" typeHandler="com.maicard.th.TextHashMapTypeHandler"/>
+		<result property="minKeepCount" column="min_keep_count"/>
+		<result property="maxKeepCount" column="max_keep_count"/>
+						
+	</resultMap>
+
+	<sql id="selectColumns">
+		coupon_model_id,
+		parent_coupon_model_id,
+		`level`,
+		coupon_code,
+		extra_code,
+		coupon_model_name,
+		coupon_model_desc,
+		content,
+		bin_content,
+		gift_money,
+		gift_money_type,
+		price_money,
+		price_money_type,
+		`memory`,
+		coupon_type,
+		valid_time_begin,
+		valid_time_end,
+		inviter,
+		image_url,
+		promotion_data,
+		processor,
+		identify,
+		current_status,
+		owner_id,
+		data,
+		min_keep_count,
+		max_keep_count
+	</sql>
+
+	<insert id="insert" parameterType="com.maicard.tx.entity.CouponModel"
+		useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO coupon_model
+		(
+		<if test="couponModelId>0">coupon_model_id,</if>parent_coupon_model_id, `level`, coupon_code, extra_code,coupon_model_name,coupon_model_desc,content, bin_content, gift_money, gift_money_type, price_money, price_money_type, `memory`, coupon_type, valid_time_begin,valid_time_end,inviter,image_url,promotion_data,processor,identify,current_status,owner_id, data, min_keep_count, max_keep_count)
+		VALUES
+		(
+		<if test="couponModelId>0">#{couponModelId},</if>#{parentCouponModelId}, #{level}, #{couponCode}, #{extraCode}, #{couponModelName}, #{couponModelDesc}, #{content}, #{binContent}, #{giftMoney}, #{giftMoneyType}, #{priceMoney}, #{priceMoneyType}, #{memory},#{couponType}, #{validTimeBegin}, #{validTimeEnd},  #{inviter}, #{imageUrl}, #{promotionData}, #{processor}, #{identify}, #{currentStatus}, #{ownerId}, #{data, javaType=HashMap, jdbcType=VARCHAR , typeHandler=com.maicard.th.TextHashMapTypeHandler}, #{minKeepCount}, #{maxKeepCount})
+	</insert>
+
+	<update id="update" parameterType="com.maicard.tx.entity.CouponModel">
+		UPDATE
+			coupon_model
+		SET
+			parent_coupon_model_id = #{parentCouponModelId},
+			`level` = #{level},
+			coupon_code = #{couponCode},
+			extra_code = #{extraCode},
+			coupon_model_name = #{couponModelName},
+			coupon_model_desc = #{couponModelDesc}, 
+			content = #{content},
+			bin_content = #{binContent},
+			gift_money = #{giftMoney},
+			gift_money_type = #{giftMoneyType},
+			price_money = #{priceMoney},
+			price_money_type = #{priceMoneyType},
+			`memory` = #{memory},
+			coupon_type = #{couponType},
+			valid_time_begin = #{validTimeBegin}, 
+			valid_time_end = #{validTimeEnd}, 
+			inviter = #{inviter},
+			image_url = #{imageUrl},
+			promotion_data = #{promotionData},
+			processor = #{processor},
+			identify = #{identify},
+			current_status = #{currentStatus},	
+			owner_id = #{ownerId},
+			data = #{data, javaType=HashMap, jdbcType=VARCHAR, typeHandler=com.maicard.th.TextHashMapTypeHandler},
+			min_keep_count = #{minKeepCount},
+			max_keep_count = #{maxKeepCount}
+		WHERE
+			coupon_model_id = #{couponModelId}
+	</update>
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			coupon_model
+		WHERE
+			coupon_model_id = #{couponModelId}
+	</delete>
+
+	<select id="select" parameterType="int" resultMap="couponModelResult">
+		SELECT
+		<include refid="selectColumns" />
+		FROM
+			coupon_model
+		WHERE
+			coupon_model_id = #{couponModelId}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+			
+			<if test="ownerId > 0">
+				AND owner_id = #{ownerId}
+			</if>
+			<if test="inviters != null and inviters.length > 0">
+				AND a.inviter in
+				<foreach item="item" collection="inviters" open="("
+					separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="parentCouponModelId > 0">
+				AND parent_coupon_model_id = #{parentCouponModelId}
+			</if>
+			<if test="couponCode != null">
+				AND coupon_code = #{couponCode}
+			</if>
+			<if test="extraCode != null">
+				AND extra_code = #{extraCode}
+			</if>
+			<if test="identify != null">
+				AND identify LIKE #{identify}
+			</if>
+			<if test="autoKeepEnabled == true">
+				AND min_keep_count &gt; 0
+			</if>
+			<if test="currentStatus != null">
+				AND current_status in
+				<foreach item="item" collection="currentStatus" open="("
+					separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="id > 0">
+				AND `id` = #{id}
+			</if>
+		</where>
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="couponModelResult">
+		SELECT
+			<include refid="selectColumns" />
+		FROM
+			coupon_model
+		<include refid="criteriaWhereClause" />
+	</select>
+	<select id="count" parameterType="map"
+		resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			coupon_model
+		<include refid="criteriaWhereClause" />
+	</select>
+	
+</mapper>

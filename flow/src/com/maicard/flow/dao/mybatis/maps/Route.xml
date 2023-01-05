@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Fri Mar 01 18:51:30 CST 2013-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maicard.flow.sql.Route">
+
+	<resultMap id="routeResult" type="Route">
+		<result property="id" column="id"/>
+		<result property="routeName" column="route_name"/>
+		<result property="workflowId" column="workflow_id"/>
+		<result property="step" column="step"/>
+		<result property="nextStep" column="next_step"/>
+		<result property="priority" column="priority"/>
+		<result property="targetObjectType" column="target_object_type"/>
+		<result property="targetObjectCheckMode" column="target_object_check_mode"/>		
+		<result property="targetObjectOperateCode" column="target_object_operate_code"/>
+		<result property="targetObjectAttributeMap" column="target_object_attribute_map" typeHandler="com.maicard.flow.th.AttributeMapJsonHandler"/>
+		<result property="editable" column="editable"/>
+		<result property="postProcess" column="post_process"/>
+		<result property="stepConditionSet" column="step_condition_set" typeHandler="com.maicard.flow.th.StepConditionSetTypeHandler" />
+		<result property="currentStatus" column="current_status"/>
+		<result property="ownerId" column="owner_id"/>
+	</resultMap>
+
+	<sql id="selectColumns">
+			id,
+			route_name,
+			workflow_id,
+			step,
+			next_step,
+			priority,
+			target_object_type,
+			target_object_check_mode,
+			target_object_operate_code,
+			target_object_attribute_map,
+			editable,
+			post_process,
+			step_condition_set,
+			current_status,
+			owner_id
+	</sql>
+	
+	<insert id="insert" parameterType="Route" useGeneratedKeys="true"  keyProperty="id">
+		INSERT INTO route
+			(<if test="id>0">id,</if>owner_id, route_name, workflow_id, step, next_step, priority, target_object_type, target_object_check_mode, target_object_operate_code, target_object_attribute_map, editable, post_process, step_condition_set, current_status)
+		VALUES
+			(<if test="id>0">#{id},</if>#{ownerId}, #{routeName}, #{workflowId}, #{step}, #{nextStep}, #{priority}, #{targetObjectType}, #{targetObjectCheckMode}, #{targetObjectOperateCode}, #{targetObjectAttributeMap, typeHandler=com.maicard.flow.th.AttributeMapJsonHandler}, #{editable}, #{postProcess}, #{stepConditionSet, typeHandler=com.maicard.flow.th.StepConditionSetTypeHandler}, #{currentStatus})
+	</insert>
+
+	<update id="update" parameterType="Route">
+		UPDATE
+			route
+		SET
+			route_name = #{routeName},
+			workflow_id = #{workflowId},
+			step = #{step},
+			next_step = #{nextStep},
+			priority = #{priority},
+			target_object_type = #{targetObjectType},
+			target_object_check_mode = #{targetObjectCheckMode},
+			target_object_operate_code = #{targetObjectOperateCode},
+			target_object_attribute_map = #{targetObjectAttributeMap,typeHandler=com.maicard.flow.th.AttributeMapJsonHandler},
+			editable = #{editable},
+			post_process = #{postProcess},
+			step_condition_set = #{stepConditionSet, typeHandler=com.maicard.flow.th.StepConditionSetTypeHandler},
+			current_status = #{currentStatus},
+			owner_id = #{ownerId}
+		WHERE
+			id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM
+			route
+		WHERE
+			id = #{id}
+	</delete>
+	
+	<select id="select" parameterType="long" resultMap="routeResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			route
+		WHERE
+			id = #{id}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<where>
+		<if test="ownerId > 0">
+			owner_id IN (#{ownerId},0)
+		</if>
+		<if test="workflowId > 0">
+				AND workflow_id = #{workflowId}
+		</if>
+		<if test="currentStatus != null">
+				AND current_status in 
+				<foreach item="item" collection="currentStatus" open="(" separator="," close=")">
+	        			#{item}
+	  			</foreach>				
+	  		</if>
+	  	</where>
+	  	
+	</sql>
+
+	<select id="list" parameterType="map" resultMap="routeResult">
+		SELECT
+			<include refid="selectColumns"/>
+		FROM
+			route
+		<include refid="criteriaWhereClause"/>
+		ORDER BY
+			step, priority, id ASC
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			route
+		<include refid="criteriaWhereClause"/>
+	</select>
+
+</mapper>
